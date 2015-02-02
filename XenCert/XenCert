@@ -66,7 +66,7 @@ def main():
     Print("***********************************************************************")  
     testAll = False
     
-    if not options.functional and not options.control and not options.multipath and not options.pool and not options.data and not options.metadata:
+    if not options.functional and not options.control and not options.multipath and not options.data:
 	    testAll = True
     
     if options.multipath or testAll:
@@ -85,14 +85,6 @@ def main():
     	Print("***********************************************************************")
 	timeOfCompletionControl = time.asctime(time.localtime())
 
-    if options.pool or testAll:
-	Print("Performing pool tests to ensure consistency.")
-    	(retValPool, checkPointsPool, totalCheckPointsPool) = handler.PoolTests()
-        if checkPointsPool != totalCheckPointsPool:
-            pass_all = False
-	Print("***********************************************************************")
-	timeOfCompletionPool = time.asctime(time.localtime())
-    	
     if options.functional or testAll: 
     	Print("Performing functional tests.")
     	(retValFunctional, checkPointsFunctional, totalCheckPointsFunctional) = handler.FunctionalTests()
@@ -109,12 +101,6 @@ def main():
         Print("***********************************************************************")
     timeOfCompletionData = time.asctime(time.localtime())
     
-    if options.metadata:
-        Print("Performing metadata tests.")
-        retValMetadata = handler.MetaDataTests()        
-        Print("***********************************************************************")
-    timeOfCompletionMetadata = time.asctime(time.localtime())
-
     # Now display all the results
     if options.multipath or testAll:
 	Print("***********************************************************************")
@@ -134,13 +120,6 @@ def main():
             Print("%-50s: FAIL, Pass percentage: %d, Completed: %s" %
 		  ('Control path stress test results', int((checkPointsControl * 100)/totalCheckPointsControl), timeOfCompletionControl))
     	
-    if options.pool or testAll:	
-    	Print("***********************************************************************")
-	if retValPool: 
-            Print("%-50s: PASS, Pass percentage: %d, Completed: %s" % ('Pool test results', int((checkPointsPool * 100)/totalCheckPointsPool), timeOfCompletionPool))
-	else:
-            Print("%-50s: FAIL, Pass percentage: %d, Completed: %s" % ('Pool test results', int((checkPointsPool * 100)/totalCheckPointsPool), timeOfCompletionPool))
-    	
     if options.functional or testAll:     	
     	Print("***********************************************************************")
 	if retValFunctional: 
@@ -159,13 +138,6 @@ def main():
             Print("%-50s: FAIL, Pass percentage: %d, Completed: %s" %
           ('Data test results', int((checkPointsData * 100)/totalCheckPointsData), timeOfCompletionData))
         
-    if options.metadata:
-        Print("***********************************************************************")
-        if retValMetadata: 
-            Print("%-50s: PASS" % ('Metadata test results'))
-    	else:
-            Print("%-50s: FAIL" % ('Metadata test results'))
-            
     Print("***********************************************************************")
     Print("End of Inspur InCloud Sphere XenCert certification suite.")
     Print("Please find the report for this test run at: %s" % GetLogFileName())
