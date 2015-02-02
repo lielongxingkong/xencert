@@ -1,6 +1,7 @@
 #!/usr/bin/python -u
 #
 # Copyright (C) Citrix Systems Inc.
+# Copyright (C) Inspur Inc.
 #
 # This program is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU Lesser General Public License as published 
@@ -15,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-"""Manual Xen Certification script"""
+"""Manual Inspur InCloud Sphere Certification script"""
 
 import os
 import sys
@@ -35,12 +36,12 @@ def main():
     g_storage_conf = {}
     InitLogging()
     PrintToLog("***********************************************************************\n")
-    PrintToLog("The XenCert command executed is: \n\n")
+    PrintToLog("The Inspur XenCert command executed is: \n\n")
     for arg in sys.argv:
 	PrintToLog(arg)
 	PrintToLog(' ')
     PrintToLog('\n\n')
-    (options, args) = XenCertCommon.parse_args("%prog 2.5. \nCitrix Systems, Storage Certification.\n")
+    (options, args) = XenCertCommon.parse_args("%prog 2.5. \nInspur InCloud Sphere, Storage Certification.\n")
    
     if args:
         Print("Unknown arguments found: %s" % args)
@@ -60,7 +61,7 @@ def main():
     # perform the certification process
     handler = XenCertCommon.GetStorageHandler(g_storage_conf)
     build = commands.getoutput('cat /etc/xensource-inventory | grep BUILD_NUMBER')
-    Print("********************** Welcome to XenCert 2.5 %s *****************"%build)
+    Print("********************** Welcome to Inspur InCloud Sphere XenCert 2.5 %s *****************"%build)
     Print("Test start time: %s" % time.asctime(time.localtime()))
     start = datetime.now()
     Print("***********************************************************************")  
@@ -167,7 +168,7 @@ def main():
             Print("%-50s: FAIL" % ('Metadata test results'))
             
     Print("***********************************************************************")
-    Print("End of XenCert certification suite.")
+    Print("End of Inspur InCloud Sphere XenCert certification suite.")
     Print("Please find the report for this test run at: %s" % GetLogFileName())
     Print("***********************************************************************")
     end = datetime.now()
