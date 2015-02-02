@@ -60,8 +60,7 @@ def main():
     # requested storage type and hand it over to the handler to
     # perform the certification process
     handler = XenCertCommon.GetStorageHandler(g_storage_conf)
-    build = commands.getoutput('cat /etc/xensource-inventory | grep BUILD_NUMBER')
-    Print("********************** Welcome to Inspur InCloud Sphere XenCert 2.5 %s *****************"%build)
+    Print("********************** Welcome to Inspur InCloud Sphere XenCert *****************")
     Print("Test start time: %s" % time.asctime(time.localtime()))
     start = datetime.now()
     Print("***********************************************************************")  
