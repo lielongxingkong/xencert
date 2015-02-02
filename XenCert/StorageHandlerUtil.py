@@ -17,7 +17,8 @@
 
 """Storage handler classes for various storage drivers"""
 import sys
-sys.path.insert(0, "/opt/xensource/sm")
+sys.path.insert(0, "../drivers")
+sys.path.insert(0, "drivers")
 import scsiutil
 import util
 import glob
