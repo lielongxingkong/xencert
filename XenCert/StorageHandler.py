@@ -23,22 +23,17 @@ from StorageHandlerUtil import PrintOnSameLine
 from StorageHandlerUtil import XenCertPrint
 from StorageHandlerUtil import displayOperationStatus
 from StorageHandlerUtil import DISKDATATEST
-from srmetadata import SLMetadataHandler
 import scsiutil, iscsilib
-import XenAPI
 import util
 import glob
 from threading import Thread
 import time
 import os
-import ISCSISR
 import random
 import nfs
 import commands
 from lvhdutil import VG_LOCATION,VG_PREFIX
 from lvutil import MDVOLUME_NAME, ensurePathExists, remove, rename
-from srmetadata import LVMMetadataHandler, updateLengthInHeader, open_file, \
-    close, file_write_wrapper
 import metadata
 from xml.dom import minidom
 
