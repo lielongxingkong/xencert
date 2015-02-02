@@ -91,6 +91,14 @@ def color_it(message, color=None):
 	message = message + '\033[0m'
     return message
     
+def PrintB(message):
+    message = color_it(message, 'b')
+    Print(message)
+
+def PrintG(message):
+    message = color_it(message, 'g')
+    Print(message)
+
 def PrintY(message):
     message = color_it(message, 'y')
     Print(message)
@@ -98,6 +106,17 @@ def PrintY(message):
 def PrintR(message):
     message = color_it(message, 'r')
     Print(message)
+
+def DebugCmd(cmd):
+    PrintR("# " + cmd)
+
+def DebugCmdArray(cmd):
+    if type(cmd) == type([]):
+        DebugCmd(" ".join(cmd))
+    elif type(cmd) == type(""):
+        DebugCmd(cmd)
+    else:
+        DebugCmd(str(cmd))
 
 def Print(message):
     # Print to the stdout and to a temp file.

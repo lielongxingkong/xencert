@@ -18,7 +18,7 @@
 """Storage handler classes for various storage drivers"""
 import sys
 import StorageHandlerUtil
-from StorageHandlerUtil import Print, PrintR, PrintY
+from StorageHandlerUtil import Print, PrintR, PrintY, DebugCmd, DebugCmdArray
 from StorageHandlerUtil import PrintOnSameLine
 from StorageHandlerUtil import XenCertPrint
 from StorageHandlerUtil import displayOperationStatus
@@ -1685,6 +1685,7 @@ class StorageHandlerNFS(StorageHandler):
             Print(">> various paths exported for verification by the user. ")
             try:
                 cmd = [nfs.SHOWMOUNT_BIN, "--no-headers", "-e", self.storage_conf['server']]
+                DebugCmdArray(cmd)
                 list =  util.pread2(cmd).split('\n')
                 if len(list) > 0:
                     Print("   %-50s" % 'Exported Path')
@@ -1698,7 +1699,7 @@ class StorageHandlerNFS(StorageHandler):
                 raise e
                 
             # 2. Verify NFS target by mounting as local directory
-            Print("VERIFY NFS TARGET PARAMETERS")
+            PrintY("VERIFY NFS TARGET PARAMETERS")
             Print(">> This test attempts to mount the export path specified ")
             Print(">> as a local directory. ")
             try:                
@@ -1711,7 +1712,7 @@ class StorageHandlerNFS(StorageHandler):
                 raise Exception("   - Failed to mount exported path: %s on server: %s, error: %s" % (self.storage_conf['server'], self.storage_conf['serverpath'], str(e)))       
             
             # 2. Create directory and execute Filesystem IO tests
-            Print("CREATE DIRECTORY AND PERFORM FILESYSTEM IO TESTS.")
+            PrintY("CREATE DIRECTORY AND PERFORM FILESYSTEM IO TESTS.")
             Print(">> This test creates a directory on the locally mounted path above")
             Print(">> and performs some filesystem read write operations on the directory.")
             try:
@@ -1723,6 +1724,7 @@ class StorageHandlerNFS(StorageHandler):
                 testDirCreated = True
                 testfile = os.path.join(testdir, 'XenCertTestFile-%s' % commands.getoutput('uuidgen'))
                 cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'oflag=direct']
+                DebugCmdArray(cmd)
                 (rc, stdout, stderr) = util.doexec(cmd, '')
                 testFileCreated = True
                 if rc != 0:                    
@@ -1734,7 +1736,7 @@ class StorageHandlerNFS(StorageHandler):
                 raise e        
             
             # 3. Report Filesystem target space parameters for verification by user
-            Print("REPORT FILESYSTEM TARGET SPACE PARAMETERS FOR VERIFICATION BY THE USER")
+            PrintY("REPORT FILESYSTEM TARGET SPACE PARAMETERS FOR VERIFICATION BY THE USER")
             try:
                 Print("  - %-20s: %s" % ('Total space', util.get_fs_size(testdir)))
                 Print("  - %-20s: %s" % ('Space utilization',util.get_fs_utilisation(testdir)))
