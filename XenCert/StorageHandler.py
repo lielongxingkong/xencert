@@ -18,7 +18,7 @@
 """Storage handler classes for various storage drivers"""
 import sys
 import StorageHandlerUtil
-from StorageHandlerUtil import Print
+from StorageHandlerUtil import Print, PrintR, PrintY
 from StorageHandlerUtil import PrintOnSameLine
 from StorageHandlerUtil import XenCertPrint
 from StorageHandlerUtil import displayOperationStatus
@@ -2787,7 +2787,7 @@ class StorageHandlerNFS(StorageHandler):
         mountpoint = '/mnt/XenCertTest-' + commands.getoutput('uuidgen') 
         try:
             # 1. Display various exports from the server for verification by the user. 
-            Print("DISCOVERING EXPORTS FROM THE SPECIFIED TARGET")
+            PrintY("DISCOVERING EXPORTS FROM THE SPECIFIED TARGET")
             Print(">> This test probes the specified NFS target and displays the ")
             Print(">> various paths exported for verification by the user. ")
             try:
