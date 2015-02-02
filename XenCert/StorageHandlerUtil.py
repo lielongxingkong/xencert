@@ -78,6 +78,27 @@ def PrintToLog(message):
     except:
 	pass
      
+def color_it(message, color=None):
+    color_map = {
+        'r' : 31,
+        'g' : 32,
+        'y' : 33,
+        'b' : 34,
+        'w' : 37,
+    }
+    if color in color_map.keys():
+	message = ('\033[1;%dm' % color_map[color]) + message 
+	message = message + '\033[0m'
+    return message
+    
+def PrintY(message):
+    message = color_it(message, 'y')
+    Print(message)
+
+def PrintR(message):
+    message = color_it(message, 'r')
+    Print(message)
+
 def Print(message):
     # Print to the stdout and to a temp file.
     try:
