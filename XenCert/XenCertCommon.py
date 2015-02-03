@@ -45,8 +45,8 @@ __iscsi__ = [
     ["targetIQN",       "comma separated list of target IQNs OR \"*\"", " : ", None,        "required", "-q", ""      ],
     ["SCSIid",        "SCSIid to use for datastore creation",                  " : ", '',          "optional", "-s", ""    ],
     ["chapuser",        "username for CHAP", " : ", '',        "optional", "-x", ""    ],
-    ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""  ] ]
-    ["quick",      "quick test skip whole disk check", " : ", '',        "optional", "-q", ""  ] ]
+    ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""    ],
+    ["type",      "type whether skip whole disk check", " : ", '',        "optional", "-y", ""  ] ]
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
