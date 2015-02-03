@@ -911,6 +911,7 @@ def FindDiskDataTestEstimate(device, size):
     # Run diskdatatest in a report mode
     XenCertPrint("Run diskdatatest in a report mode with device %s to find the estimated time." % device)
     cmd = [DISKDATATEST, 'report', '1', device]
+    DebugCmdArray(cmd)
     XenCertPrint("The command to be fired is: %s" % cmd)
     (rc, stdout, stderr) = util.doexec(cmd)
     if rc == 0:
