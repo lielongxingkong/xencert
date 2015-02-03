@@ -1079,12 +1079,13 @@ class StorageHandlerISCSI(StorageHandler):
                 
             Print("   START TIME: %s " % (time.asctime(time.localtime())))
             
-            if hrs > 0:
-                Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
-            elif minutes > 0:
-                Print("   APPROXIMATE RUN TIME: %s minutes, %s seconds." % (minutes, seconds))
-            elif seconds > 0:
-                Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)
+            if not quickTest:                            
+                if hrs > 0:
+                    Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
+                elif minutes > 0:
+                    Print("   APPROXIMATE RUN TIME: %s minutes, %s seconds." % (minutes, seconds))
+                elif seconds > 0:
+                    Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)
             
             Print("")
             firstPortal = True
