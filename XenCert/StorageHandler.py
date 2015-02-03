@@ -934,12 +934,16 @@ class StorageHandlerISCSI(StorageHandler):
         timeForIOTestsInSec = 0
         totalSizeInMiB = 0
         wildcard = False
+        quickTest = False
 
         try:
             # Take device-config parameters and initialise data path layer.        
             Print("INITIALIZING SCSI DATA PATH LAYER ")
             
             iqns = self.storage_conf['targetIQN'].split(',')
+            if self.storage_conf['type'] == 'q' or self.storage_conf == 'quick':
+                quickTest = True
+                
             if len(iqns) == 1 and iqns[0]=='*':
                 wildcard = True
             listPortalIQNs = []
@@ -1109,17 +1113,17 @@ class StorageHandlerISCSI(StorageHandler):
                             cmd = ['dd', 'if=/dev/zero', 'of=%s' % tuple[2], 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
                             DebugCmdArray(cmd)
                             util.pread(cmd)
-                                                        
-                            cmd = [DISKDATATEST, 'write', '1', tuple[2]]
-                            XenCertPrint("The command to be fired is: %s" % cmd)
-                            DebugCmdArray(cmd)
-                            util.pread(cmd)
-                            
-                            cmd = [DISKDATATEST, 'verify', '1', tuple[2]]
-                            XenCertPrint("The command to be fired is: %s" % cmd)
-                            DebugCmdArray(cmd)
-                            util.pread(cmd)
-                            
+                            if not quickTest:                            
+                                cmd = [DISKDATATEST, 'write', '1', tuple[2]]
+                                XenCertPrint("The command to be fired is: %s" % cmd)
+                                DebugCmdArray(cmd)
+                                util.pread(cmd)
+                                
+                                cmd = [DISKDATATEST, 'verify', '1', tuple[2]]
+                                XenCertPrint("The command to be fired is: %s" % cmd)
+                                DebugCmdArray(cmd)
+                                util.pread(cmd)
+                                
                             XenCertPrint("Device %s passed the disk IO test. " % tuple[2])
                             pathPassed += 1
                             Print("")
