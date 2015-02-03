@@ -33,6 +33,7 @@ import os
 import random
 import nfs
 import commands
+import ISCSI
 from lvhdutil import VG_LOCATION,VG_PREFIX
 from lvutil import MDVOLUME_NAME, ensurePathExists, remove, rename
 import metadata
@@ -1082,7 +1083,7 @@ class StorageHandlerISCSI(StorageHandler):
             listPortalIQNs = []
             for target in self.storage_conf['target'].split(','):
                 try:
-                    iscsi_map = iscsilib.discovery(target, ISCSISR.DEFAULT_PORT, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])                                        
+                    iscsi_map = iscsilib.discovery(target, ISCSI.DEFAULT_PORT, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])                                        
                 except Exception, e:
                     Print("Exception discovering iscsi target: %s, exception: %s" % (target, str(e)))
                     displayOperationStatus(False)
