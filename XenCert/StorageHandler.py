@@ -1645,6 +1645,32 @@ class StorageHandlerNFS(StorageHandler):
         Print("MetaDataTests not applicable to NFS SR type.")
         return False
 
+    def DisplayNFS(self):
+        try:               
+            cmd = [nfs.SHOWMOUNT_BIN, "--no-headers", "-e", self.storage_conf['server']]
+            DebugCmdArray(cmd)
+            list =  util.pread2(cmd).split('\n')
+            if len(list) > 0:
+                Print("   %-50s" % 'Exported Path')
+            for val in list:
+                if len(val.split()) > 0:
+                    Print("   %-50s" % val.split()[0])
+    
+        except Exception, e:
+            Print("   - Failed to display exported paths for server: %s. Exception: %s" % 
+                                                         (self.storage_conf['server'], str(e)))
+    	    raise e
+
+    def MountNFS(self, mountpoint):
+        try:
+            util.makedirs(mountpoint, 755)                
+            nfs.soft_mount(mountpoint, self.storage_conf['server'], self.storage_conf['serverpath'], 'tcp')
+        except Exception, e:
+            raise e
+
+    def UnmountNFS(self):
+        nfs.unmount(mountpoint, True)
+
     def FunctionalTests(self):
         retVal = True
         checkPoints = 0
@@ -1659,28 +1685,17 @@ class StorageHandlerNFS(StorageHandler):
             PrintY("DISCOVERING EXPORTS FROM THE SPECIFIED TARGET")
             Print(">> This test probes the specified NFS target and displays the ")
             Print(">> various paths exported for verification by the user. ")
-            try:
-                cmd = [nfs.SHOWMOUNT_BIN, "--no-headers", "-e", self.storage_conf['server']]
-                DebugCmdArray(cmd)
-                list =  util.pread2(cmd).split('\n')
-                if len(list) > 0:
-                    Print("   %-50s" % 'Exported Path')
-                for val in list:
-                    if len(val.split()) > 0:
-                        Print("   %-50s" % val.split()[0])
-                displayOperationStatus(True)
-                checkPoints += 1
-            except Exception, e:
-                Print("   - Failed to display exported paths for server: %s. Exception: %s" % (self.storage_conf['server'], str(e)))
-                raise e
-                
+
+            self.DisplayNFS()
+            displayOperationStatus(True)
+            checkPoints += 1
+
             # 2. Verify NFS target by mounting as local directory
             PrintY("VERIFY NFS TARGET PARAMETERS")
             Print(">> This test attempts to mount the export path specified ")
             Print(">> as a local directory. ")
             try:                
-                util.makedirs(mountpoint, 755)                
-                nfs.soft_mount(mountpoint, self.storage_conf['server'], self.storage_conf['serverpath'], 'tcp')
+                self.MountNFS(mountpoint)
                 mountCreated = True
                 displayOperationStatus(True)
                 checkPoints += 1
@@ -1732,7 +1747,7 @@ class StorageHandlerNFS(StorageHandler):
             if testDirCreated:
                 os.rmdir(testdir)
             if mountCreated:
-                nfs.unmount(mountpoint, True)
+                self.UnmountNFS(mountpoint)
             checkPoints += 1
         except Exception, e:
             Print("   - Failed to cleanup after NFS functional tests, please delete the following manually: %s, %s, %s. Exception: %s" % (testfile, testdir, mountpoint, str(e)))
