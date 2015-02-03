@@ -318,14 +318,13 @@ def _genHostList(procname):
         pass
     return ids
 
-def _genReverseSCSIidmap(SCSIid, pathname="scsibus"):
-    util.SMlog("map_by_scsibus: sid=%s" % SCSIid)
-
+def _genReverseSCSIidmap(SCSIid):
+    deviceInfo = commands.getoutput('lsscsi -i')
     devices = []
-    for link in glob.glob('/dev/disk/by-%s/%s-*' % (pathname,SCSIid)):
-        realpath = os.path.realpath(link)
-        if os.path.exists(realpath):
-            devices.append(realpath)
+    for info in deviceInfo.split('\n'):
+        info = info.split()
+        if info[-1] == SCSIid:
+            devices.append(info[-2])
     return devices
 
 def _genReverseSCSidtoLUNidmap(SCSIid):
