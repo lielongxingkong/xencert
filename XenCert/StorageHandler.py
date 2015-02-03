@@ -926,6 +926,45 @@ class StorageHandlerISCSI(StorageHandler):
         except Exception, e:
             raise e
 
+    def ISCSIDiscoveryTarget(self, target):
+        try:
+            return iscsilib.discovery(target, ISCSI.DEFAULT_PORT, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])                                        
+        except Exception, e:
+            Print("Exception discovering iscsi target: %s, exception: %s" % (target, str(e)))
+            displayOperationStatus(False)
+            raise
+
+    def ISCSIDiscoveryTargets(self, targetList, iqnFilter):
+        listPortalIQNs = []
+        for target in targetList:
+            iscsi_map = self.ISCSIDiscoveryTarget(target)
+            # Create a list of portal IQN combinations.
+            for record in iscsi_map:
+                for iqn in iqnFilter:
+                    if record[2] == iqn or wildcard:
+                        try:
+                            listPortalIQNs.index((record[0], record[2]))
+                        except Exception, e:
+                            listPortalIQNs.append((record[0], record[2]))
+                            break
+        return listPortalIQNs
+
+    def ISCSILogin(self, portal, iqn):
+        # Login to this IQN, portal combination
+        iscsilib.login(portal, iqn, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])
+        XenCertPrint("Logged on to the target.")
+        # Now test the target
+        iscsilib._checkTGT(portal)
+        XenCertPrint("Checked the target.")
+
+    def ISCSILogout(self, portal, iqn):
+        try:
+            XenCertPrint("Logging out of the session: %s, %s" % (portal, iqn))
+            iscsilib.logout(portal, iqn) 
+        except Exception, e:
+            Print("- Logout failed for the combination %s, %s, but it may not have been logged on so ignore the failure." % (portal, iqn))
+            Print("  Exception: %s" % str(e))
+
     def ISCSIPerformance(self, testfile):
         size = 100
         cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'conv=nocreat', 'oflag=direct']
@@ -975,25 +1014,8 @@ class StorageHandlerISCSI(StorageHandler):
                 
             if len(iqns) == 1 and iqns[0]=='*':
                 wildcard = True
-            listPortalIQNs = []
-            for target in self.storage_conf['target'].split(','):
-                try:
-                    iscsi_map = iscsilib.discovery(target, ISCSI.DEFAULT_PORT, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])                                        
-                except Exception, e:
-                    Print("Exception discovering iscsi target: %s, exception: %s" % (target, str(e)))
-                    displayOperationStatus(False)
-                    raise
-            
-                # Create a list of portal IQN combinations.                
-                for record in iscsi_map:
-                    for iqn in iqns:
-                        if record[2] == iqn or wildcard:
-                            try:
-                                listPortalIQNs.index((record[0], record[2]))
-                            except Exception, e:
-                                listPortalIQNs.append((record[0], record[2]))
-                                break
-            
+
+            listPortalIQNs = self.ISCSIDiscoveryTargets(self.storage_conf['target'].split(','), iqns)
             displayOperationStatus(True)
             checkPoint += 1
 
@@ -1027,14 +1049,9 @@ class StorageHandlerISCSI(StorageHandler):
             for (portal, iqn) in listPortalIQNs:
                 try:
                     scsilist = []
-                    # Login to this IQN, portal combination
-                    iscsilib.login(portal, iqn, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])
-                    XenCertPrint("Logged on to the target.")
+                    self.ISCSILogin(portal, iqn)
                     logoutlist.append((portal,iqn))                        
-                            
-                    # Now test the target
-                    iscsilib._checkTGT(portal)
-                    XenCertPrint("Checked the target.")
+
                     lunToScsi = StorageHandlerUtil.get_lun_scsiid_devicename_mapping(iqn, portal)
                     if len(lunToScsi.keys()) == 0:
                         raise Exception("   - No LUNs found!")
@@ -1189,12 +1206,8 @@ class StorageHandlerISCSI(StorageHandler):
             
          # Logout of all the sessions in the logout list
         for (portal,iqn) in logoutlist:
-            try:
-                XenCertPrint("Logging out of the session: %s, %s" % (portal, iqn))
-                iscsilib.logout(portal, iqn) 
-            except Exception, e:
-                Print("- Logout failed for the combination %s, %s, but it may not have been logged on so ignore the failure." % (portal, iqn))
-                Print("  Exception: %s" % str(e))
+            self.ISCSILogout(portal, iqn)
+
         XenCertPrint("Checkpoints: %d, totalCheckPoints: %s" % (checkPoint, totalCheckPoints))
         XenCertPrint("Leaving StorageHandlerISCSI FunctionalTests")
 
