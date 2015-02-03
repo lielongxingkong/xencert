@@ -956,20 +956,43 @@ def _find_LUN(svid):
         XenCertPrint("DEBUG: device path : %s"%(device))
         return [device]
 
-def WriteDataToVDI(session, vdi_ref, startSec, endSec, skipLevel=0, zeroOut=False, full=False):
-    XenCertPrint("WriteDataToVDI(vdi_ref=%s, startSec=%s, endSec=%s, skipLevel=%s, full=%s ->Enter)"%(vdi_ref, startSec, endSec, skipLevel, full))
+def CreateImg(img_path, size=1):
+    XenCertPrint("CreateIMG(img_path=%s, size=%s ->Enter)"%(img_path, size))
     try:
-        svid = session.xenapi.VDI.get_sm_config(vdi_ref)['SVID']
-        device = _find_LUN(svid)[0]
+        XenCertPrint("about to create image: %s"%img_path)
 
-        XenCertPrint("about to write onto device: %s"%device)
+        f = open(img_path, "w+")
+        f.seek(size)
+        f.write("junk")
+        f.close()
+    except Exception,e:
+        raise Exception("create image IMG:%s Failed. Error:%s"%(img_path,e))
+
+    XenCertPrint("CreateIMG() -> Exit")
+
+def RemoveImg(img_path):
+    XenCertPrint("RemoveIMG(img_path=%s ->Enter)"%img_path)
+    try:
+        XenCertPrint("about to remove image: %s"%img_path)
+
+        os.remove(img_path)
+    except Exception,e:
+        raise Exception("remove image IMG:%s Failed. Error:%s"%(img_path,e))
+
+    XenCertPrint("RemoveIMG() -> Exit")
+
+
+def WriteDataToImg(img_path, startSec, endSec, skipLevel=0, zeroOut=False, full=False):
+    XenCertPrint("WriteDataToIMG(img_path=%s, startSec=%s, endSec=%s, skipLevel=%s, full=%s ->Enter)"%(img_path, startSec, endSec, skipLevel, full))
+    try:
+        XenCertPrint("about to write onto image: %s"%img_path)
 
         if zeroOut:
             pattern = BUF_ZEROS
         else:
             pattern = BUF_PATTERN
 
-        f = open(device, "w+")
+        f = open(img_path, "w+")
         while startSec <= endSec:
             f.seek(startSec * SECTOR_SIZE)
             if full:
@@ -982,24 +1005,22 @@ def WriteDataToVDI(session, vdi_ref, startSec, endSec, skipLevel=0, zeroOut=Fals
             startSec += 1 + skipLevel
         f.close()
     except Exception,e:
-        raise Exception("Writing data into VDI:%s Failed. Error:%s"%(vdi_ref,e))
+        raise Exception("Writing data into IMG:%s Failed. Error:%s"%(vdi_ref,e))
 
-    XenCertPrint("WriteDataToVDI() -> Exit")
+    XenCertPrint("WriteDataToIMG() -> Exit")
 
-def VerifyDataOnVDI(session, vdi_ref, startSec, endSec, skipLevel=0, zeroed=False, full=False):
-    XenCertPrint("VerifyDataOnVDI(vdi_ref=%s, startSec=%s, endSec=%s, skipLevel=%s, full=%s ->Enter)"%(vdi_ref, startSec, endSec, skipLevel, full))
+def VerifyDataOnImg(img_path, startSec, endSec, skipLevel=0, zeroed=False, full=False):
+    XenCertPrint("VerifyDataOnIMG(img_path=%s, startSec=%s, endSec=%s, skipLevel=%s, full=%s ->Enter)"%(img_path, startSec, endSec, skipLevel, full))
     try:
-        svid = session.xenapi.VDI.get_sm_config(vdi_ref)['SVID']
-        device = _find_LUN(svid)[0]
 
-        XenCertPrint("about to read from device: %s"%device)
+        XenCertPrint("about to read from image: %s"%img_path)
 
         if zeroed:
             expect = BUF_ZEROS 
         else:
             expect = BUF_PATTERN
 
-        f = open(device, "r+")
+        f = open(img_path, "r+")
         while startSec <= endSec:
             f.seek(startSec * SECTOR_SIZE)
             if full:
@@ -1018,4 +1039,4 @@ def VerifyDataOnVDI(session, vdi_ref, startSec, endSec, skipLevel=0, zeroed=Fals
     except Exception,e:
         raise Exception("Verification of data in VDI:%s Failed. Error:%s"%(vdi_ref,e))
 
-    XenCertPrint("VerifyDataOnVDI() -> Exit")
+    XenCertPrint("VerifyDataOnIMG() -> Exit")

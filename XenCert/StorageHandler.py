@@ -23,6 +23,7 @@ from StorageHandlerUtil import PrintOnSameLine
 from StorageHandlerUtil import XenCertPrint
 from StorageHandlerUtil import displayOperationStatus
 from StorageHandlerUtil import DISKDATATEST
+from StorageHandlerUtil import CreateImg, RemoveImg, WriteDataToImg, VerifyDataOnImg
 import scsiutil, iscsilib
 import util
 import glob
