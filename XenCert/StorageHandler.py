@@ -1672,7 +1672,35 @@ class StorageHandlerNFS(StorageHandler):
     def UmountNFS(self, mountpoint):
         nfs.unmount(mountpoint, True)
 
+    def NFSPerformance(self, testfile):
+        size = 100
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'oflag=direct']
+        DebugCmdArray(cmd)
+        time1 = time.time()
+        (rc, stdout, stderr) = util.doexec(cmd, '')
+        duration = time.time() - time1
+        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
+        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
+        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
+        return (rc, stdout, stderr)
+
+    def NFSFunctional(self, testfile):
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'oflag=direct']
+        DebugCmdArray(cmd)
+        return util.doexec(cmd, '')
+
     def FunctionalTests(self):
+        return self.FunctionalOrPerformanceTests('Func')
+
+    def DataPerformanceTests(self):
+        return self.FunctionalOrPerformanceTests('Perf')
+
+    def FunctionalOrPerformanceTests(self, type='Func'):
+
+        if type not in ('Perf', 'Func'):
+            PrintR("Unsupport Selection %s, Perf and Func only" % type)
+            raise Exception("Unsupport Selection %s, Perf and Func only" % type)
+
         retVal = True
         checkPoints = 0
         totalCheckPoints = 5
@@ -1714,10 +1742,13 @@ class StorageHandlerNFS(StorageHandler):
                 except Exception,e:                    
                     raise Exception("Exception creating directory: %s" % str(e))
                 testDirCreated = True
-                testfile = os.path.join(testdir, 'XenCertTestFile-%s' % commands.getoutput('uuidgen'))
-                cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'oflag=direct']
-                DebugCmdArray(cmd)
-                (rc, stdout, stderr) = util.doexec(cmd, '')
+
+                testfile = os.path.join(testdir, 'XenCertNFSPerfTestFile-%s' % commands.getoutput('uuidgen'))
+                if type == 'Func':
+                    rc, stdout, stderr = self.NFSFunctional(testfile)
+                elif type == 'Perf':
+                    rc, stdout, stderr = self.NFSPerformance(testfile)
+
                 testFileCreated = True
                 if rc != 0:                    
                     raise Exception(stderr)
@@ -1754,7 +1785,7 @@ class StorageHandlerNFS(StorageHandler):
             Print("   - Failed to cleanup after NFS functional tests, please delete the following manually: %s, %s, %s. Exception: %s" % (testfile, testdir, mountpoint, str(e)))
             
         return (retVal, checkPoints, totalCheckPoints)   
-    
+
     def MPConfigVerificationTests(self):
         return (True, 1, 1)
         

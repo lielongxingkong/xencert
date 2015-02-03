@@ -87,7 +87,7 @@ def main():
 
     if options.data or testAll: 
     	Print("Performing data IO tests.")
-    	(retValData, checkPointsData, totalCheckPointsData) = handler.DataIntegrityTests()
+    	(retValData, checkPointsData, totalCheckPointsData) = handler.DataPerformanceTests()
         if checkPointsData != checkPointsData:
             pass_all = False
         Print("***********************************************************************")
