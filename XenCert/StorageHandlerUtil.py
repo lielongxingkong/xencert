@@ -159,9 +159,9 @@ def XenCertPrint(message):
 
 def displayOperationStatus(passOrFail, customValue = ''):
     if passOrFail:
-        Print("                                                                                                   PASS [Completed%s]" % customValue)
+        PrintG("                                                                                                   PASS [Completed%s]" % customValue)
     else:
-        Print("                                                                                                   FAIL [%s]" % time.asctime(time.localtime()))
+        PrintR("                                                                                                   FAIL [%s]" % time.asctime(time.localtime()))
 
 def _init_adapters():
     # Generate a list of active adapters
