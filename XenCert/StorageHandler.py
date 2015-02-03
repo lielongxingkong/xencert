@@ -1669,7 +1669,7 @@ class StorageHandlerNFS(StorageHandler):
         except Exception, e:
             raise e
 
-    def UnmountNFS(self):
+    def UmountNFS(self, mountpoint):
         nfs.unmount(mountpoint, True)
 
     def FunctionalTests(self):
@@ -1748,7 +1748,7 @@ class StorageHandlerNFS(StorageHandler):
             if testDirCreated:
                 os.rmdir(testdir)
             if mountCreated:
-                self.UnmountNFS(mountpoint)
+                self.UmountNFS(mountpoint)
             checkPoints += 1
         except Exception, e:
             Print("   - Failed to cleanup after NFS functional tests, please delete the following manually: %s, %s, %s. Exception: %s" % (testfile, testdir, mountpoint, str(e)))
