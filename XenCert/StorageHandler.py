@@ -1245,14 +1245,17 @@ class StorageHandlerISCSI(StorageHandler):
                             # First write a small chunk on the device to make sure it works                    
                             XenCertPrint("First write a small chunk on the device %s to make sure it works." % tuple[2])
                             cmd = ['dd', 'if=/dev/zero', 'of=%s' % tuple[2], 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
+                            DebugCmdArray(cmd)
                             util.pread(cmd)
                                                         
                             cmd = [DISKDATATEST, 'write', '1', tuple[2]]
                             XenCertPrint("The command to be fired is: %s" % cmd)
+                            DebugCmdArray(cmd)
                             util.pread(cmd)
                             
                             cmd = [DISKDATATEST, 'verify', '1', tuple[2]]
                             XenCertPrint("The command to be fired is: %s" % cmd)
+                            DebugCmdArray(cmd)
                             util.pread(cmd)
                             
                             XenCertPrint("Device %s passed the disk IO test. " % tuple[2])
