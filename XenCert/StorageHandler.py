@@ -843,82 +843,6 @@ class StorageHandlerISCSI(StorageHandler):
         self.iqn = storage_conf['targetIQN']
         StorageHandler.__init__(self, storage_conf)        
     
-    def Create_SR(self):        
-        return self.session.xenapi.SR.create(util.get_localhost_uuid(self.session), \
-            self.device_config, '0', 'XenCertTestSR', 'XenCertTestSR-desc', 'lvmoiscsi', '',False, {})
-
-    def MetaDataTests(self):
-        Print(">>> ISCSI Metadata tests")
-        Print("----------------")
-        retVal = True
-        retVal = self.metadata_sr_attach_tests() and \
-            self.metadata_sr_scan_tests() and \
-            self.metadata_sr_update_tests() and \
-            self.metadata_general_vm_tests() and \
-            self.metadata_scalibility_tests() and \
-            self.metadata_atomicity_tests()
-        return retVal
-        
-    def getMetaDataRec(self, params = {}):
-        XenCertPrint("getMetaDataRec Enter")
-        self.sr_uuid =  self.session.xenapi.SR.get_uuid(self.sr_ref)
-        self.setMdPath()
-        (sr_info, vdi_info) = LVMMetadataHandler(self.mdpath).getMetadata(params)
-        XenCertPrint("getMetaDataRec Exit")
-        return (sr_info, vdi_info)
-        
-    def checkMetadataVDI(self, vdi_ref):
-        XenCertPrint("checkMetadataVDI Enter")
-        self.sr_ref = self.session.xenapi.VDI.get_SR(vdi_ref)
-        vdi_uuid = self.session.xenapi.VDI.get_uuid(vdi_ref)
-        vdi_info = self.getMetaDataRec({'indexByUuid': 1, 'vdi_uuid': vdi_uuid})[1]
-        verifyFields = self.populateVDI_XAPIFields(vdi_ref)
-        self.compareMDWithXapi(vdi_uuid, vdi_info[vdi_uuid], verifyFields)
-        XenCertPrint("checkMetadataVDI Exit")
-        return
-    
-    def VerifyVDIsInMetadata(self, path, listOfVdiUuids):
-        # get all VDIs from path and compare with the passed in VDIs
-        vdi_info = self.getMetaDataRec({'indexByUuid': 1})[1]
-        XenCertPrint("md_vdi_info: %s" % vdi_info)
-        for vdi_uuid in listOfVdiUuids:
-            if not vdi_info.has_key(vdi_uuid):
-                raise Exception("VDI %s missing from the metadata." % vdi_uuid)
-            else:    
-                self.compareMDWithXapi(vdi_uuid, vdi_info[vdi_uuid],
-                    self.populateVDI_XAPIFields(\
-                                self.session.xenapi.VDI.get_by_uuid(vdi_uuid)))
-    
-    def compareMDWithXapi(self, vdi_uuid, md_vdi_info, xapi_vdi_info):
-        # remove irrelevant fields
-        if xapi_vdi_info['is_a_snapshot'] == False:
-            del md_vdi_info['snapshot_of']
-            del md_vdi_info['snapshot_time']
-        
-        if xapi_vdi_info['type'] != 'metadata':
-            del md_vdi_info['metadata_of_pool']
-            
-        for key in md_vdi_info.keys():
-            if not xapi_vdi_info.has_key(key):
-                continue
-            
-            md_value = md_vdi_info[key]
-            xapi_value = xapi_vdi_info[key]
-            if key == 'vdi_type':
-                xapi_value = xapi_vdi_info['sm_config'][key]
-            
-            if key == 'snapshot_of':
-                xapi_value = self.session.xenapi.VDI.get_uuid(xapi_vdi_info[key])
-            
-            if type(xapi_value) is bool:
-                xapi_value = int(xapi_value)
-            
-            if type(xapi_value) is int:
-                md_value = int(md_value)
-            
-            if md_value != xapi_value:
-                raise Exception("VDI:%s key:%s Metadata:%s <> Xapi:%s doesn't match"%(vdi_uuid, key, md_value, xapi_value))
-
     def setMdPath(self):
         # come up with the management volume name
         # add SR name_label
@@ -945,68 +869,6 @@ class StorageHandlerISCSI(StorageHandler):
                 # logout of the iscsi session
                 iscsilib.logout(self.storage_conf['target'], self.storage_conf['targetIQN'])
                 
-    def removeVDIFromStorage(self, vdi_uuid):
-        path = os.path.join(VG_LOCATION, VG_PREFIX + self.sr_uuid)
-        path = os.path.join(path, 'VHD-%s' % vdi_uuid)
-        remove(path)
-        
-    def deleteVdiFromMetadata(self, vdi_uuid):
-        self.setMdPath()
-        LVMMetadataHandler(self.mdpath).deleteVdiFromMetadata(vdi_uuid)
-        
-    def Probe_SR(self):
-        try:
-            return self.session.xenapi.SR.probe(util.get_localhost_uuid(self.session), self.device_config, "lvmoiscsi", self.sm_config)
-        except Exception, e:
-            # exceptions are not OK
-            XenCertPrint("Exception probing lvmoiscsi SR with device_config %s "\
-                         "and sm_config %s, error: %s" % \
-                         (self.device_config, self.sm_config, str(e)))
-            return ''        
-
-    def Create(self, device_config = {}):
-        retVal = True
-        sr_ref = None
-        try:
-            XenCertPrint("First use XAPI to get information for creating an SR.")
-            listPortal = []
-            listSCSIId = []
-            (listPortal, listSCSIId) = StorageHandlerUtil.GetListPortalScsiIdForIqn(self.session, self.storage_conf['target'], self.iqn, self.storage_conf['chapuser'], self.storage_conf['chappasswd'])
-            
-            # Create an SR
-            Print("      Creating the SR.")
-            device_config['target'] = self.storage_conf['target']
-            if len(self.iqn.split(',')) > 1:
-                device_config['targetIQN'] = '*'
-            else:
-                device_config['targetIQN'] = self.iqn
-            if self.storage_conf['chapuser']!= None and self.storage_conf['chappasswd'] != None:
-                device_config['chapuser'] = self.storage_conf['chapuser']
-                device_config['chappassword'] = self.storage_conf['chappasswd']
-            # try to create an SR with one of the LUNs mapped, if all fails throw an exception
-            for scsiId in listSCSIId:
-                try:                    
-                    device_config['SCSIid'] = scsiId
-                    XenCertPrint("The SR create parameters are %s, %s" % (util.get_localhost_uuid(self.session), device_config))
-                    sr_ref = self.session.xenapi.SR.create(util.get_localhost_uuid(self.session), device_config, '0', 'XenCertTestSR', '', 'lvmoiscsi', '',True, {})
-                    XenCertPrint("Created the SR %s using device_config %s" % (sr_ref, device_config))
-                    displayOperationStatus(True)
-                    break
-
-                except Exception, e:
-                    XenCertPrint("Could not perform SR control tests with device %s, trying other devices." % scsiId)
-                    continue
-                    
-            if sr_ref == None:
-                displayOperationStatus(False)
-                retVal = False
-        except Exception, e:
-            Print("   - Failed to create SR. Exception: %s" % str(e))
-            displayOperationStatus(False)
-            raise Exception(str(e))
-        
-        return (retVal, sr_ref, device_config)
-        
     def GetPathStatus(self, device_config):
         # Query DM-multipath status, reporting a) Path checker b) Path Priority handler c) Number of paths d) distribution of active vs passive paths
         try:
@@ -1074,7 +936,7 @@ class StorageHandlerISCSI(StorageHandler):
         wildcard = False
 
         try:
-            # Take SR device-config parameters and initialise data path layer.        
+            # Take device-config parameters and initialise data path layer.        
             Print("INITIALIZING SCSI DATA PATH LAYER ")
             
             iqns = self.storage_conf['targetIQN'].split(',')
