@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 	int writeEstimate = 0;
 	int verifyEstimate = 0;
 
-	printf("into the file at least.");
+	printf("into the file at least.\n");
 	if (argc != 4)
 		usage(argv[0]);
 
