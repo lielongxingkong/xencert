@@ -217,10 +217,7 @@ def GetConfig(scsiid):
 	configMap = {}
 	device = scsiutil._genReverseSCSIidmap(scsiid)[0]
 	XenCertPrint("GetConfig - device: %s" % device)
-	list = device.split('/')[1]
-	justDev = device.split('/')[2]
-	XenCertPrint("GetConfig - just the device: %s" % justDev)
-	cmd = ["scsi_id", "-u", "-g", "-x", "-s", "/block/%s" % justDev, "-d", device]
+	cmd = ["scsi_id", "-u", "-g", "-x", "-d", device]
 	ret = util.pread2(cmd)
 	XenCertPrint("GetConfig - scsi_if output: %s" % ret)
 	for tuple in ret.split('\n'):
