@@ -58,17 +58,15 @@ DISKDATATEST = '/opt/xensource/debug/XenCert/diskdatatest'
 
 multiPathDefaultsMap = { 'udev_dir':'/dev',
 			    'polling_interval':'5',
-			    'selector': "round-robin 0",
+			    'path_selector': "round-robin 0",
 			    'path_grouping_policy':'failover',
-			    'getuid_callout':"/sbin/scsi_id -g -u -s /block/%n",
-			    'prio_callout':'none',
-			    'path_checker':'readsector0',
+			    'getuid_callout':"/lib/udev/scsi_id --whitelisted --device=/dev/%n",
+			    'path_checker':'directio',
 			    'rr_min_io':'1000',
 			    'rr_weight':'uniform',
 			    'failback':'manual',
 			    'no_path_retry':'fail',
-			    'user_friendly_names':'no',
-			    'bindings_file':"/var/lib/multipath/bindings" }
+			    'user_friendly_names':'no' }
 
 def PrintToLog(message):
     try:
