@@ -18,7 +18,7 @@
 """Storage handler classes for various storage drivers"""
 import sys
 import StorageHandlerUtil
-from StorageHandlerUtil import Print, PrintR, PrintY, DebugCmd, DebugCmdArray
+from StorageHandlerUtil import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 from StorageHandlerUtil import PrintOnSameLine
 from StorageHandlerUtil import XenCertPrint
 from StorageHandlerUtil import displayOperationStatus
