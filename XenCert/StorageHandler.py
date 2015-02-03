@@ -925,8 +925,35 @@ class StorageHandlerISCSI(StorageHandler):
             return True                    
         except Exception, e:
             raise e
-        
+
+    def ISCSIPerformance(self, testfile):
+        size = 100
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'conv=nocreat', 'oflag=direct']
+        DebugCmdArray(cmd)
+        time1 = time.time()
+        util.pread(cmd)
+        duration = time.time() - time1
+        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
+        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
+        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
+
+    def ISCSIFunctional(self, testfile):
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
+        DebugCmdArray(cmd)
+        util.pread(cmd)
+
     def FunctionalTests(self):
+        return self.FunctionalOrPerformanceTests('Func')
+
+    def DataPerformanceTests(self):
+        return self.FunctionalOrPerformanceTests('Perf')
+
+    def FunctionalOrPerformanceTests(self, type):
+
+        if type not in ('Perf', 'Func'):
+            PrintR("Unsupport Selection %s, Perf and Func only" % type)
+            raise Exception("Unsupport Selection %s, Perf and Func only" % type)
+
         logoutlist = []
         retVal = True
         checkPoint = 0
@@ -942,6 +969,8 @@ class StorageHandlerISCSI(StorageHandler):
             
             iqns = self.storage_conf['targetIQN'].split(',')
             if self.storage_conf['type'] == 'q' or self.storage_conf == 'quick':
+                quickTest = True
+            if type == 'Perf':
                 quickTest = True
                 
             if len(iqns) == 1 and iqns[0]=='*':
@@ -1111,9 +1140,12 @@ class StorageHandlerISCSI(StorageHandler):
                         try:
                             # First write a small chunk on the device to make sure it works                    
                             XenCertPrint("First write a small chunk on the device %s to make sure it works." % tuple[2])
-                            cmd = ['dd', 'if=/dev/zero', 'of=%s' % tuple[2], 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
-                            DebugCmdArray(cmd)
-                            util.pread(cmd)
+
+                            if type == 'Func':
+                                self.ISCSIFunctional(tuple[2])
+                            elif type == 'Perf':
+                                self.ISCSIPerformance(tuple[2])
+
                             if not quickTest:                            
                                 cmd = [DISKDATATEST, 'write', '1', tuple[2]]
                                 XenCertPrint("The command to be fired is: %s" % cmd)
