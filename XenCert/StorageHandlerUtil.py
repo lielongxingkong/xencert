@@ -191,41 +191,6 @@ def _init_adapters():
             pass
     return adapter
 
-def IsMPEnabled(session, host_ref):
-    try:
-        hconf = session.xenapi.host.get_other_config(host_ref)
-        XenCertPrint("Host.other_config: %s" % hconf)
-        
-        if hconf['multipathing'] == 'true' and hconf['multipathhandle'] == 'dmp':
-	    return True
-
-    except Exception, e:
-	XenCertPrint("Exception determining multipath status. Exception: %s" % str(e))
-    return False
-
-def enable_multipathing(session, host):
-    try:
-        session.xenapi.host.remove_from_other_config(host , 'multipathing')
-        session.xenapi.host.remove_from_other_config(host, 'multipathhandle')
-        session.xenapi.host.add_to_other_config(host, 'multipathing', 'true')
-        session.xenapi.host.add_to_other_config(host, 'multipathhandle', 'dmp')
-
-    except Exception, e:
-	XenCertPrint("Exception enabling multipathing. Exception: %s" % str(e))
-    
-    return
-
-def disable_multipathing(session, host):
-    try:
-        session.xenapi.host.remove_from_other_config(host , 'multipathing')
-        session.xenapi.host.remove_from_other_config(host, 'multipathhandle')
-        session.xenapi.host.add_to_other_config(host, 'multipathing', 'false')
-
-    except Exception, e:
-	XenCertPrint("Exception disabling multipathing. Exception: %s" % str(e))
-    
-    return
-
 def blockIP(ip):
     try:
 	cmd = ['iptables', '-A', 'INPUT', '-s', ip, '-j', 'DROP']
