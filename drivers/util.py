@@ -484,23 +484,18 @@ def zeroOut(path, fromByte, bytes):
 
     return True
 
-def match_rootdev(s):
-    regex = re.compile("^PRIMARY_DISK")
-    return regex.search(s, 0)
-
 def getrootdev():
-    filename = '/etc/xensource-inventory'
-    try:
-        f = open(filename, 'r')
-    except:
-        raise xs_errors.XenError('EIO', \
-              opterr="Unable to open inventory file [%s]" % filename)
-    rootdev = ''
-    for line in filter(match_rootdev, f.readlines()):
-        rootdev = line.split("'")[1]
+    rootdev = commands.getoutput("cat /etc/mtab|grep -E '* / ext4 rw*'")
     if not rootdev:
         raise xs_errors.XenError('NoRootDev')
-    return rootdev
+    rootdev = rootdev.split()[0]
+    #filter digit in /dev/sda1
+    index = 0
+    while index < len(rootdev):
+        if str.isdigit(rootdev[index]):
+            break
+        index += 1
+    return rootdev[:index]
 
 def getrootdevID():
     rootdev = getrootdev()
