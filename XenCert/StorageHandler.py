@@ -935,6 +935,10 @@ class StorageHandlerISCSI(StorageHandler):
             raise
 
     def ISCSIDiscoveryTargets(self, targetList, iqnFilter):
+        wildcard = False
+        if len(iqnFilter) == 1 and iqnFilter[0]=='*':
+            wildcard = True
+
         listPortalIQNs = []
         for target in targetList:
             iscsi_map = self.ISCSIDiscoveryTarget(target)
@@ -999,23 +1003,20 @@ class StorageHandlerISCSI(StorageHandler):
         totalCheckPoints = 4
         timeForIOTestsInSec = 0
         totalSizeInMiB = 0
-        wildcard = False
         quickTest = False
 
         try:
             # Take device-config parameters and initialise data path layer.        
             Print("INITIALIZING SCSI DATA PATH LAYER ")
             
-            iqns = self.storage_conf['targetIQN'].split(',')
             if self.storage_conf['type'] == 'q' or self.storage_conf == 'quick':
                 quickTest = True
             if type == 'Perf':
                 quickTest = True
                 
-            if len(iqns) == 1 and iqns[0]=='*':
-                wildcard = True
-
-            listPortalIQNs = self.ISCSIDiscoveryTargets(self.storage_conf['target'].split(','), iqns)
+            iqns = self.storage_conf['targetIQN'].split(',')
+            targets = self.storage_conf['target'].split(',')
+            listPortalIQNs = self.ISCSIDiscoveryTargets(targets, iqns)
             displayOperationStatus(True)
             checkPoint += 1
 
