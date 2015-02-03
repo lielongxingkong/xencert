@@ -22,6 +22,7 @@ import base64
 import time
 import errno
 import glob
+import commands
 import mpath_cli
 
 PREFIX_LEN = 4
@@ -123,12 +124,11 @@ def getmanufacturer(path):
 
 def cacheSCSIidentifiers():
     SCSI = {}
-    SYS_PATH = "/dev/disk/by-scsibus/*"
-    for node in glob.glob(SYS_PATH):
-        if not re.match('.*-\d+:\d+:\d+:\d+$', node):
-            continue
-        dev = os.path.realpath(node)
-        HBTL = os.path.basename(node).split("-")[-1].split(":")
+    deviceInfo = commands.getoutput('lsscsi')
+    for node in deviceInfo.split('\n'):
+        busId = node.split()[0][1:-1]
+        dev = node.split()[-1]
+        HBTL = busId.split(":")
         line = "NONE %s %s %s %s 0 %s" % \
                (HBTL[0],HBTL[1],HBTL[2],HBTL[3],dev)
         ids = line.split()
