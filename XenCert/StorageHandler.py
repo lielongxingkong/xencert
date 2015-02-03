@@ -869,6 +869,30 @@ class StorageHandlerISCSI(StorageHandler):
                 # logout of the iscsi session
                 iscsilib.logout(self.storage_conf['target'], self.storage_conf['targetIQN'])
                 
+    def Create(self, device_config = {}):
+        device_config['target'] = self.storage_conf['target']
+        if len(self.iqn.split(',')) > 1:
+            device_config['targetIQN'] = '*'
+        else:
+            device_config['targetIQN'] = self.iqn
+        if self.storage_conf['chapuser']!= None and self.storage_conf['chappasswd'] != None:
+            device_config['chapuser'] = self.storage_conf['chapuser']
+            device_config['chappassword'] = self.storage_conf['chappasswd']
+
+        listPortalIQNs = self.ISCSIDiscoveryTargets([device_config['target'],], [device_config['targetIQN'],])
+        if len(listPortalIQNs) == 0:
+            raise Exception("   - No Target found!")
+        portal, iqn = listPortalIQNs[0]
+        self.ISCSILogin(portal, iqn)
+        #TODO
+        #logoutlist.append((portal,iqn))
+        lunToScsi = StorageHandlerUtil.get_lun_scsiid_devicename_mapping(iqn, portal)
+        if len(lunToScsi.keys()) == 0:
+            raise Exception("   - No LUNs found!")
+        device_config['SCSIid'] = lunToScsi["0"][0]
+
+        return device_config
+
     def GetPathStatus(self, device_config):
         # Query DM-multipath status, reporting a) Path checker b) Path Priority handler c) Number of paths d) distribution of active vs passive paths
         try:
