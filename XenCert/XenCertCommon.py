@@ -46,6 +46,7 @@ __iscsi__ = [
     ["SCSIid",        "SCSIid to use for datastore creation",                  " : ", '',          "optional", "-s", ""    ],
     ["chapuser",        "username for CHAP", " : ", '',        "optional", "-x", ""    ],
     ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""  ] ]
+    ["quick",      "quick test skip whole disk check", " : ", '',        "optional", "-q", ""  ] ]
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
