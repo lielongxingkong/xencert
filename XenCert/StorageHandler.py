@@ -1637,30 +1637,6 @@ class StorageHandlerNFS(StorageHandler):
         self.serverpath = storage_conf['serverpath']        
         StorageHandler.__init__(self, storage_conf)
         
-    def Create(self):
-        device_config = {}
-        device_config['server'] = self.server
-        device_config['serverpath'] = self.serverpath
-        retVal = True
-        try:
-            # Create an SR
-            Print("      Creating the SR.")
-            # try to create an SR with one of the LUNs mapped, if all fails throw an exception
-            XenCertPrint("The SR create parameters are %s, %s" % (util.get_localhost_uuid(self.session), device_config))
-            sr_ref = self.session.xenapi.SR.create(util.get_localhost_uuid(self.session), device_config, '0', 'XenCertTestSR', '', 'nfs', '',False, {})
-            XenCertPrint("Created the SR %s using device_config %s" % (sr_ref, device_config))
-            displayOperationStatus(True)
-            
-        except Exception, e:            
-            displayOperationStatus(False)
-            raise Exception(("   - Failed to create SR. Exception: %s" % str(e)))
-                    
-        if sr_ref == None:
-            displayOperationStatus(False)
-            retVal = False        
-        
-        return (retVal, sr_ref, device_config)
-    
     def __del__(self):
         XenCertPrint("Reached StorageHandlerNFS destructor")
         StorageHandler.__del__(self)
