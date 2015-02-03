@@ -49,11 +49,8 @@ __lvmoiscsi__ = [
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
-    ["control", "perform control path tests",                           " : ", None, "optional", "-c", ""],
     ["multipath", "perform multipath configuration verification tests", " : ", None, "optional", "-m", ""],
-    ["pool", "perform pool verification tests",                         " : ", None, "optional", "-o", ""],
     ["data", "perform data verification tests",                         " : ", None, "optional", "-d", ""],
-    ["metadata", "perform metadata tests",                              " : ", None, "optional", "-M", ""],
     ["help",    "show this help message and exit",                                  " : ", None,        "optional", "-h", "" ]]
 
 __commonparams__ = [
