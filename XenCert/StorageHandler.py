@@ -374,7 +374,40 @@ class StorageHandler:
         except Exception, e:
             XenCertPrint("Failed to match new paths with old paths.")
             return False
-        
+
+    def RawDiskPerformance(self, diskpath):
+        size = 100
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % diskpath, 'bs=1M', 'count=%s' % size, 'conv=nocreat', 'oflag=direct']
+        DebugCmdArray(cmd)
+        time1 = time.time()
+        util.pread(cmd)
+        duration = time.time() - time1
+        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
+        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
+        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
+
+    def RawDiskFunctional(self, diskpath):
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % diskpath, 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
+        DebugCmdArray(cmd)
+        util.pread(cmd)
+
+    def FileSystemPerformance(self, testfile):
+        size = 100
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'oflag=direct']
+        DebugCmdArray(cmd)
+        time1 = time.time()
+        (rc, stdout, stderr) = util.doexec(cmd, '')
+        duration = time.time() - time1
+        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
+        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
+        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
+        return (rc, stdout, stderr)
+
+    def FileSystemFunctional(self, testfile):
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'oflag=direct']
+        DebugCmdArray(cmd)
+        return util.doexec(cmd, '')
+     
 class StorageHandlerISCSI(StorageHandler):
     def __init__(self, storage_conf):
         XenCertPrint("Reached StorageHandlerISCSI constructor")
@@ -535,21 +568,11 @@ class StorageHandlerISCSI(StorageHandler):
             Print("- Logout failed for the combination %s, %s, but it may not have been logged on so ignore the failure." % (portal, iqn))
             Print("  Exception: %s" % str(e))
 
-    def ISCSIPerformance(self, testfile):
-        size = 100
-        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'conv=nocreat', 'oflag=direct']
-        DebugCmdArray(cmd)
-        time1 = time.time()
-        util.pread(cmd)
-        duration = time.time() - time1
-        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
-        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
-        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
+    def ISCSIPerformance(self, diskpath):
+        self.RawDiskPerformance(diskpath)
 
     def ISCSIFunctional(self, testfile):
-        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
-        DebugCmdArray(cmd)
-        util.pread(cmd)
+        self.RawDiskFuctional(diskpath)
 
     def FunctionalTests(self):
         return self.FunctionalOrPerformanceTests('Func')
@@ -893,6 +916,12 @@ class StorageHandlerHBA(StorageHandler):
         Print("MetaDataTests not applicable to HBA SR type.")
         return False       
  
+    def HBAPerformance(self, diskpath):
+        self.RawDiskPerformance(diskpath)
+
+    def HBAFunctional(self, diskpath):
+        self.RawDiskFunctional(diskpath)
+
     def FunctionalTests(self):
         retVal = True
         checkPoint = 0
@@ -1154,21 +1183,10 @@ class StorageHandlerNFS(StorageHandler):
         nfs.unmount(mountpoint, True)
 
     def NFSPerformance(self, testfile):
-        size = 100
-        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'oflag=direct']
-        DebugCmdArray(cmd)
-        time1 = time.time()
-        (rc, stdout, stderr) = util.doexec(cmd, '')
-        duration = time.time() - time1
-        PrintB('>' * 20 + '  Start of Performance Test Result  ' + '>' * 20)
-        PrintB('\tTest1 : %sMB Data Writen in %.2f seconds, Throuput %.2f MB/s' % (size, duration, size/duration))
-        PrintB('>' * 20 + '  End of Performance Test Result  ' + '>' * 20)
-        return (rc, stdout, stderr)
+        self.FileSystemPerformance(testfile)
 
     def NFSFunctional(self, testfile):
-        cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=1', 'oflag=direct']
-        DebugCmdArray(cmd)
-        return util.doexec(cmd, '')
+        self.FileSystemFunctional(testfile)
 
     def FunctionalTests(self):
         return self.FunctionalOrPerformanceTests('Func')
