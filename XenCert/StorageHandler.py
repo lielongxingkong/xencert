@@ -939,7 +939,13 @@ class StorageHandlerHBA(StorageHandler):
         totalCheckPoints = 4
         timeForIOTestsInSec = 0
         totalSizeInMiB = 0
+        quickTest = False
 
+        if self.storage_conf['type'] == 'q' or self.storage_conf == 'quick':
+            quickTest = True
+        if type == 'Perf':
+            quickTest = True
+         
         try:
             # 1. Report the FC Host Adapters detected and the status of each physical port
             # Run a probe on the host with type lvmohba, parse the xml output and extract the HBAs advertised
@@ -1074,12 +1080,13 @@ class StorageHandlerHBA(StorageHandler):
                                 % (timeLimitFunctional, (timeLimitFunctional*60*60*totalSizeInMiB)/timeForIOTestsInSec))                
                 
             Print("   START TIME: %s " % (time.asctime(time.localtime())))
-            if hrs > 0:
-                Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
-            elif minutes > 0:
-                Print("   APPROXIMATE RUN TIME: %s minutes, %s seconds." % (minutes, seconds))
-            elif seconds > 0:
-                Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)            
+            if not quickTest:
+                if hrs > 0:
+                    Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
+                elif minutes > 0:
+                    Print("   APPROXIMATE RUN TIME: %s minutes, %s seconds." % (minutes, seconds))
+                elif seconds > 0:
+                    Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)            
             
             Print("")            
             totalCheckPoints += 1
@@ -1110,18 +1117,19 @@ class StorageHandlerHBA(StorageHandler):
                             elif type == 'Perf':
                                 self.HBAPerformance(device)
 
-                            cmd = [DISKDATATEST, 'write', '1', device]
-                            XenCertPrint("The command to be fired is: %s" % cmd)
-                            util.pread(cmd)
-                            
-                            cmd = [DISKDATATEST, 'verify', '1', device]
-                            XenCertPrint("The command to be fired is: %s" % cmd)
-                            util.pread(cmd)
-                            
-                            XenCertPrint("Device %s passed the disk IO test. " % device)
-                            pathPassed += 1
-                            Print("")
-                            displayOperationStatus(True)
+                            if not quickTest:                            
+                                cmd = [DISKDATATEST, 'write', '1', device]
+                                XenCertPrint("The command to be fired is: %s" % cmd)
+                                util.pread(cmd)
+                                
+                                cmd = [DISKDATATEST, 'verify', '1', device]
+                                XenCertPrint("The command to be fired is: %s" % cmd)
+                                util.pread(cmd)
+                                
+                                XenCertPrint("Device %s passed the disk IO test. " % device)
+                                pathPassed += 1
+                                Print("")
+                                displayOperationStatus(True)
 
                         except Exception, e:
                             Print("        Exception: %s" % str(e))

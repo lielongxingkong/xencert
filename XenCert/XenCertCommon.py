@@ -45,8 +45,7 @@ __iscsi__ = [
     ["targetIQN",       "comma separated list of target IQNs OR \"*\"", " : ", None,        "required", "-q", ""      ],
     ["SCSIid",        "SCSIid to use for datastore creation",                  " : ", '',          "optional", "-s", ""    ],
     ["chapuser",        "username for CHAP", " : ", '',        "optional", "-x", ""    ],
-    ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""    ],
-    ["type",      "type whether skip whole disk check", " : ", '',        "optional", "-y", ""  ] ]
+    ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""    ] ]
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
@@ -61,7 +60,8 @@ __commonparams__ = [
     ["pathInfo", "pass-through string used to pass data to the callout utility above, for e.g. login credentials etc. This string is passed as-is to the callout utility. ",
                                                                                     " : ", None, "optional", "-i", ""],
     ["count", "count of iterations to perform in case of multipathing failover testing",
-                                                                                    " : ", None, "optional", "-g", ""]]
+                                                                                    " : ", None, "optional", "-g", ""],
+    ["type",      "type whether skip whole disk check", " : ", '',        "optional", "-y", ""  ] ]
 
 def parse_args(version_string):
     """Parses the command line arguments"""
