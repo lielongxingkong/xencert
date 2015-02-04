@@ -19,7 +19,6 @@
 
 import sys, os, re
 import scsiutil, util
-import xml.dom.minidom
 import xs_errors, time
 import glob
 
@@ -262,12 +261,10 @@ def scan(srobj):
     systemrootID = util.getrootdevID()
     hbadict = srobj.hbadict
     hbas = srobj.hbas
-    dom = xml.dom.minidom.Document()
-    e = dom.createElement("Devlist")
-    dom.appendChild(e)
+    devlist={}
 
     if not os.path.exists(DEVPATH):
-        return dom.toprettyxml()
+        return {}
     
     devs = srobj.devs
     vdis = {}
@@ -286,9 +283,6 @@ def scan(srobj):
         # Test for root dev or existing PBD
         if len(obj.SCSIid) and len(systemrootID) and util.match_scsiID(obj.SCSIid, systemrootID):
             util.SMlog("Ignoring root device %s" % realpath)
-            continue
-        elif util.test_SCSIid(srobj.session, None, obj.SCSIid):
-            util.SMlog("SCSIid in use, ignoring (%s)" % obj.SCSIid)
             continue
         elif not devs.has_key(realpath):
             continue
@@ -319,11 +313,10 @@ def scan(srobj):
         else:    
             vdis[obj.SCSIid] = obj
                     
+    blockDevices = []
     for key in vdis:
+        blockDev = {}
         obj = vdis[key]
-        d = dom.createElement("BlockDevice")
-        e.appendChild(d)
-
         for attr in ['path','numpaths','SCSIid','vendor','serial','size','adapter','channel','id','lun','hba','mpp']:
             try:
                 aval = getattr(obj, attr)
@@ -332,36 +325,21 @@ def scan(srobj):
                     continue
                 raise xs_errors.XenError('InvalidArg', \
                       opterr='Missing required field [%s]' % attr)
-            entry = dom.createElement(attr)
-            d.appendChild(entry)
-            textnode = dom.createTextNode(str(aval))
-            entry.appendChild(textnode)
+            blockDev[attr] = str(aval)
+        blockDevices.append(blockDev)
+    devlist["BlockDevice"] = blockDevices
 
+    adapters = []
     for key in hbas.iterkeys():
-        a = dom.createElement("Adapter")
-        e.appendChild(a)
-        entry = dom.createElement('host')
-        a.appendChild(entry)
-        textnode = dom.createTextNode(key)
-        entry.appendChild(textnode)
+        adapter = {}
+        adapter['host'] = key
+        adapter['name'] = hbas[key]
+        adapter['manufacturer'] = getManufacturer(hbas[key])
+        adapter['id'] = key.replace("host","")
+        adapters.append(adapter)
+    devlist["Adapter"] = adapters
 
-        entry = dom.createElement('name')
-        a.appendChild(entry)
-        textnode = dom.createTextNode(hbas[key])
-        entry.appendChild(textnode)
-
-        entry = dom.createElement('manufacturer')
-        a.appendChild(entry)
-        textnode = dom.createTextNode(getManufacturer(hbas[key]))
-        entry.appendChild(textnode)
-
-        id = key.replace("host","")
-        entry = dom.createElement('id')
-        a.appendChild(entry)
-        textnode = dom.createTextNode(id)
-        entry.appendChild(textnode)       
-        
-    return dom.toprettyxml()
+    return devlist
 
 def check_iscsi(adapter):
     ret = False
