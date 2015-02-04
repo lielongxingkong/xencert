@@ -716,12 +716,16 @@ def parse_config(vendor, product):
         XenCertPrint("mpath output after stripping: %s" % stdout)
         list = stdout.split("device {")
         skipThis = True
+        lastOne = False
         for para in list:
             returnmap = {}
             XenCertPrint("The para is: %s" % para)
             if not skipThis:
 	        para = para.lstrip()
                 para = para.rstrip('\n\t}\n\t')
+                if para.endswith('\n\t}\n}\nblacklist_exceptions {\n}\ndevices {'):
+                    para = para.rstrip('\n\t}\n}\nblacklist_exceptions {\n}\ndevices {')
+                    lastOne = True
                 listParams = para.split('\n\t\t')
                 XenCertPrint("ListParams: %s" % listParams)
                 for paramPair in listParams:
@@ -746,6 +750,8 @@ def parse_config(vendor, product):
                 regexvendor = re.compile(vendorSearch)
                 regexproduct = re.compile(productSearch)
                 if ((regexproduct.search(product)) and (regexvendor.search(vendor))):
+                    break
+                if lastOne:
                     break
             else:
                 skipThis = False
