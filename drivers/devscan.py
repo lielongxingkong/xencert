@@ -167,8 +167,7 @@ def adapters(filterstr="any"):
                         entry['target'] = lun
                         devs[key] = entry
             if path.startswith(SYSFS_PATH2):
-                key = os.path.basename(\
-                    glob.glob(os.path.join(path,"device","block:*"))[0]).split(':')[1]
+                key = os.path.basename(glob.glob(os.path.join(path,"device","block","*"))[0])
                 if devs.has_key(key):
                     continue
                 hbtl = os.path.basename(path)
