@@ -1124,10 +1124,10 @@ class StorageHandlerHBA(StorageHandler):
                                 XenCertPrint("The command to be fired is: %s" % cmd)
                                 util.pread(cmd)
                                 
-                                XenCertPrint("Device %s passed the disk IO test. " % device)
-                                pathPassed += 1
-                                Print("")
-                                displayOperationStatus(True)
+                            XenCertPrint("Device %s passed the disk IO test. " % device)
+                            pathPassed += 1
+                            Print("")
+                            displayOperationStatus(True)
 
                         except Exception, e:
                             Print("        Exception: %s" % str(e))
