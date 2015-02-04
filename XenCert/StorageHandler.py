@@ -923,6 +923,17 @@ class StorageHandlerHBA(StorageHandler):
         self.RawDiskFunctional(diskpath)
 
     def FunctionalTests(self):
+        return self.FunctionalOrPerformanceTests('Func')
+
+    def DataPerformanceTests(self):
+        return self.FunctionalOrPerformanceTests('Perf')
+
+    def FunctionalOrPerformanceTests(self, type='Func'):
+
+        if type not in ('Perf', 'Func'):
+            PrintR("Unsupport Selection %s, Perf and Func only" % type)
+            raise Exception("Unsupport Selection %s, Perf and Func only" % type)
+
         retVal = True
         checkPoint = 0
         totalCheckPoints = 4
@@ -1093,8 +1104,11 @@ class StorageHandlerHBA(StorageHandler):
                         try:
                             # First write a small chunk on the device to make sure it works
                             XenCertPrint("First write a small chunk on the device %s to make sure it works." % device)
-                            cmd = ['dd', 'if=/dev/zero', 'of=%s' % device, 'bs=1M', 'count=1', 'conv=nocreat', 'oflag=direct']
-                            util.pread(cmd)
+
+                            if type == 'Func':
+                                self.HBAFunctional(device)
+                            elif type == 'Perf':
+                                self.HBAPerformance(device)
 
                             cmd = [DISKDATATEST, 'write', '1', device]
                             XenCertPrint("The command to be fired is: %s" % cmd)
