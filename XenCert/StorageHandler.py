@@ -817,44 +817,19 @@ class StorageHandlerHBA(StorageHandler):
     
     def Create(self):
         device_config = {}
-        retVal = True
-        sr_ref = None
-        try:
-            XenCertPrint("First use XAPI to get information for creating an SR.")
-            listSCSIId = []
-            (retVal, listAdapters, listSCSIId) = StorageHandlerUtil. \
-                                               GetHBAInformation(self.session, \
-                                               self.storage_conf)
-            if not retVal:                
-                raise Exception("   - Failed to get available HBA information on the host.")
-            if len(listSCSIId) == 0:                
-                raise Exception("   - Failed to get available LUNs on the host.")
+        device_config['adapters'] = self.storage_conf['adapters']
 
-            # Create an SR
-            # try to create an SR with one of the LUNs mapped, if all fails throw an exception
-            Print("      Creating the SR.")
-            for scsiId in listSCSIId:
-                try:
-                    device_config['SCSIid'] = scsiId
-                    XenCertPrint("The SR create parameters are %s, %s" % (util.get_localhost_uuid(self.session), device_config))
-                    sr_ref = self.session.xenapi.SR.create(util.get_localhost_uuid(self.session), device_config, '0', 'XenCertTestSR', '', 'lvmohba', '',False, {})
-                    XenCertPrint("Created the SR %s using device_config %s" % (sr_ref, device_config))
-                    displayOperationStatus(True)
-                    break
+        listSCSIId = []
+        (retVal, listAdapters, listSCSIId) = StorageHandlerUtil.GetHBAInformation(self.storage_conf)
+        if not retVal:                
+            raise Exception("   - Failed to get available HBA information on the host.")
+        if len(listSCSIId) == 0:                
+            raise Exception("   - Failed to get available LUNs on the host.")
 
-                except Exception, e:
-                    XenCertPrint("Could not perform SR control tests with device %s, trying other devices." % scsiId)
-                    continue
-
-            if sr_ref == None:
-                displayOperationStatus(False)
-                retVal = False
-        except Exception, e:
-            Print("   - Failed to create SR. Exception: %s" % str(e))
-            displayOperationStatus(False)
-            raise Exception(str(e))
-
-        return (retVal, sr_ref, device_config)
+        for scsiId in listSCSIId:
+            device_config['SCSIid'] = scsiId
+            break
+        return device_config
 
     def GetPathStatus(self, device_config):
         # Query DM-multipath status, reporting a) Path checker b) Path Priority handler c) Number of paths d) distribution of active vs passive paths
