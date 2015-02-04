@@ -408,17 +408,20 @@ def GetLunInformation(id):
     listLunInfo = []
     try:
         # take in a host id, then list all files in /dev/disk/by_scsibus of the form *-5* then extract
-        list = glob.glob('/dev/disk/by-scsibus/*-%s:*' % id)
-        if len(list) == 0:
+        deviceInfo = commands.getoutput('lsscsi -i')
+        list = []
+        for device in deviceInfo.split('\n'):
+            info = device.split()
+            busid = info[0][1:-1].split(':')
+            if busid[0] != id:
+                continue
+            map = {}
+            map['SCSIid'] = info[-1]
+            map['id'] = busid[-1]
+            map['device'] = info[-2]
+            listLunInfo.append(map)
+        if len(listLunInfo) == 0:
             retVal = False
-        else:
-            for file in list:
-                map = {}
-                basename = os.path.basename(file)
-                map['SCSIid'] = basename.split('-')[0]
-                map['id'] = basename.split('-')[1].split(':')[3]
-                map['device'] = os.path.realpath(file)
-                listLunInfo.append(map)
     except Exception, e:
         Print("Failed to get lun information for host id: %s, error: %s" % (id, str(e)))
         retVal = False
