@@ -121,16 +121,15 @@ def adapters(filterstr="any"):
                     if not match_LUNs(lun,tgt):
                         continue
                     if emulex:
-                        dir = os.path.join(sysfs,lun)
+                        dir = os.path.join(sysfs,lun,"block")
                     else:
-                        dir = os.path.join(sysfs,lun,"device")
-                    for dev in filter(match_dev,os.listdir(dir)):
-                        key = dev.replace("block:","")
+                        dir = os.path.join(sysfs,lun,"device","block")
+                    for dev in os.listdir(dir):
                         entry = {}
                         entry['procname'] = proc
                         entry['host'] =id
                         entry['target'] = lun
-                        devs[key] = entry
+                        devs[dev] = entry
             # for new qlogic sysfs layout (rport under device, then target)
             for i in filter(match_rport,os.listdir(path)):
                 newpath = os.path.join(path, i)
@@ -140,14 +139,13 @@ def adapters(filterstr="any"):
                     for lun in os.listdir(sysfs):
                         if not match_LUNs(lun,tgt):
                             continue
-                        dir = os.path.join(sysfs,lun,"device")
-                        for dev in filter(match_dev,os.listdir(dir)):
-                            key = dev.replace("block:","")
+                        dir = os.path.join(sysfs,lun,"device","block")
+                        for dev in os.listdir(dir):
                             entry = {}
                             entry['procname'] = proc
                             entry['host'] = id
                             entry['target'] = lun
-                            devs[key] = entry
+                            devs[dev] = entry
 
             # for new mptsas sysfs entries, check for phy* node
             for i in filter(match_phy,os.listdir(path)):
