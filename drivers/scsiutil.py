@@ -84,7 +84,7 @@ def SCSIid_sanitise(str):
 
 def getSCSIid(path):
     dev = rawdev(path)
-    cmd = ["scsi_id", "-g", "-s", "/block/%s" % dev]
+    cmd = ["scsi_id", "-g", "/dev/%s" % dev]
     return SCSIid_sanitise(util.pread2(cmd)[:-1])
 
 def compareSCSIid_2_6_18(SCSIid, path):
