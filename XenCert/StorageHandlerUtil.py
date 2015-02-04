@@ -386,7 +386,7 @@ def GetHBAInformation(storage_conf):
 	        adapter = ''.join(["host",bd['adapter']])
 	        if len(HBAFilter) != 0:
 	    	    if HBAFilter.has_key(adapter):
-	    		    scsiIdList.append(SCSIid)
+                        scsiIdList.append(SCSIid)
 	        else:
 	    	    scsiIdList.append(SCSIid)
 
