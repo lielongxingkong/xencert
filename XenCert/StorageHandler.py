@@ -698,31 +698,30 @@ class StorageHandlerISCSI(StorageHandler):
             Print("   that they are writeable and there is no apparent disk corruption.")
             Print("   the tests attempt to write to the LUN over each available path and")
             Print("   reports the number of writable paths to each LUN.")
-            seconds = timeForIOTestsInSec
-            minutes = 0
-            hrs = 0
-            XenCertPrint("Total estimated time for the disk IO tests in seconds: %d" % timeForIOTestsInSec)
-            if timeForIOTestsInSec > 60:
-                minutes = timeForIOTestsInSec/60
-                seconds = int(timeForIOTestsInSec - (minutes * 60))
-                if minutes > 60:
-                    hrs = int(minutes/60)
-                    minutes = int(minutes - (hrs * 60))
-            
-            if hrs > timeLimitFunctional or hrs == timeLimitFunctional and minutes > 0:
-                raise Exception("The disk IO tests will take more than %s hours, please restrict the total disk sizes above to %d GiB."
-                                % (timeLimitFunctional, (timeLimitFunctional*60*60*totalSizeInMiB)/timeForIOTestsInSec))
-                
-            Print("   START TIME: %s " % (time.asctime(time.localtime())))
-            
+
             if not quickTest:                            
+                seconds = timeForIOTestsInSec
+                minutes = 0
+                hrs = 0
+                XenCertPrint("Total estimated time for the disk IO tests in seconds: %d" % timeForIOTestsInSec)
+                if timeForIOTestsInSec > 60:
+                    minutes = timeForIOTestsInSec/60
+                    seconds = int(timeForIOTestsInSec - (minutes * 60))
+                    if minutes > 60:
+                        hrs = int(minutes/60)
+                        minutes = int(minutes - (hrs * 60))
+                
+                if hrs > timeLimitFunctional or hrs == timeLimitFunctional and minutes > 0:
+                    raise Exception("The disk IO tests will take more than %s hours, please restrict the total disk sizes above to %d GiB." % (timeLimitFunctional, (timeLimitFunctional*60*60*totalSizeInMiB)/timeForIOTestsInSec))
+                    
                 if hrs > 0:
                     Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
                 elif minutes > 0:
                     Print("   APPROXIMATE RUN TIME: %s minutes, %s seconds." % (minutes, seconds))
                 elif seconds > 0:
                     Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)
-            
+
+            Print("   START TIME: %s " % (time.asctime(time.localtime())))
             Print("")
             firstPortal = True
             lunsMatch = True
@@ -1064,23 +1063,21 @@ class StorageHandlerHBA(StorageHandler):
             Print("   that they are writeable and there is no apparent disk corruption.")
             Print("   the tests attempt to write to the LUN over each available path and")
             Print("   reports the number of writable paths to each LUN.")
-            seconds = timeForIOTestsInSec
-            minutes = 0
-            hrs = 0
-            XenCertPrint("Total estimated time for the disk IO tests in seconds: %d" % timeForIOTestsInSec)
-            if timeForIOTestsInSec > 60:
-                minutes = int(timeForIOTestsInSec/60)
-                seconds = int(timeForIOTestsInSec - (minutes * 60))
-                if minutes > 60:
-                    hrs = int(minutes/60)
-                    minutes = int(minutes - (hrs * 60))
-            
-            if hrs > timeLimitFunctional or hrs == timeLimitFunctional and minutes > 0:
-                raise Exception("The disk IO tests will take more than %s hours, please restrict the total disk sizes above to %d GiB."
-                                % (timeLimitFunctional, (timeLimitFunctional*60*60*totalSizeInMiB)/timeForIOTestsInSec))                
-                
-            Print("   START TIME: %s " % (time.asctime(time.localtime())))
             if not quickTest:
+                seconds = timeForIOTestsInSec
+                minutes = 0
+                hrs = 0
+                XenCertPrint("Total estimated time for the disk IO tests in seconds: %d" % timeForIOTestsInSec)
+                if timeForIOTestsInSec > 60:
+                    minutes = int(timeForIOTestsInSec/60)
+                    seconds = int(timeForIOTestsInSec - (minutes * 60))
+                    if minutes > 60:
+                        hrs = int(minutes/60)
+                        minutes = int(minutes - (hrs * 60))
+                
+                if hrs > timeLimitFunctional or hrs == timeLimitFunctional and minutes > 0:
+                    raise Exception("The disk IO tests will take more than %s hours, please restrict the total disk sizes above to %d GiB." % (timeLimitFunctional, (timeLimitFunctional*60*60*totalSizeInMiB)/timeForIOTestsInSec))                
+
                 if hrs > 0:
                     Print("   APPROXIMATE RUN TIME: %s hours, %s minutes, %s seconds." % (hrs, minutes, seconds))
                 elif minutes > 0:
@@ -1088,6 +1085,7 @@ class StorageHandlerHBA(StorageHandler):
                 elif seconds > 0:
                     Print("   APPROXIMATE RUN TIME: %s seconds." % seconds)            
             
+            Print("   START TIME: %s " % (time.asctime(time.localtime())))
             Print("")            
             totalCheckPoints += 1
             for key in scsiToTupleMap.keys():
