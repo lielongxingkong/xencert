@@ -1362,9 +1362,7 @@ class StorageHandlerHBA(StorageHandler):
             # 1. Report the FC Host Adapters detected and the status of each physical port
             # Run a probe on the host with type lvmohba, parse the xml output and extract the HBAs advertised
             Print("DISCOVERING AVAILABLE HARDWARE HBAS")
-            (retVal, listMaps, scsilist) = StorageHandlerUtil. \
-                                           GetHBAInformation(self.session, \
-                                           self.storage_conf)
+            (retVal, listMaps, scsilist) = StorageHandlerUtil.GetHBAInformation(self.storage_conf)
             if not retVal:                
                 raise Exception("   - Failed to get available HBA information on the host.")
             else:

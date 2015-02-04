@@ -32,6 +32,7 @@ import re
 import commands
 import time
 import mpath_dmp
+import HBA
 
 ISCSI_PROCNAME = "iscsi_tcp"
 timeTaken = '' 
@@ -352,7 +353,7 @@ def extract_xml_from_exception(e):
     return ','.join(str(e).split(',')[3:])
 
 # The returned structure are a list of portals, and a list of SCSIIds for the specified IQN. 
-def GetHBAInformation(session, storage_conf):
+def GetHBAInformation(storage_conf):
     try:
 	retVal = True
 	list = []
@@ -365,52 +366,33 @@ def GetHBAInformation(session, storage_conf):
 	    for hba in storage_conf['adapters'].split(','):
 			HBAFilter[hba] = 1
 	
+	# Now extract the HBA information from this data.
 	try:
-	    session.xenapi.SR.probe(util.get_localhost_uuid(session), device_config, 'lvmohba')
-	except Exception, e:
-	    XenCertPrint("Got the probe data as: %s" % str(e))
-	    # Now extract the HBA information from this data.
-	    try:
-		# the target may not return any IQNs
-		# so prepare for it
-		xmlstr = extract_xml_from_exception(e)
-		xmlstr = xmlstr.lstrip()
-		xmlstr = xmlstr.lstrip('\'')
-		xmlstr = xmlstr.rstrip()
-		xmlstr = xmlstr.rstrip('\]')
-		xmlstr = xmlstr.rstrip('\'')
-		xmlstr = xmlstr.replace('\\n', '')
-		xmlstr = xmlstr.replace('\\t', '')		
-		XenCertPrint("Got the probe xml as: %s" % xmlstr)
-		dom = xml.dom.minidom.parseString(xmlstr)
-		TgtList = dom.getElementsByTagName("Adapter")
-		for tgt in TgtList:
-		    map = {}
-		    for node in tgt.childNodes:
-			    map[node.nodeName] = node.firstChild.nodeValue
-		    if len(HBAFilter) != 0:
-			    if HBAFilter.has_key(map['host']):
-				    list.append(map)
-		    else:
-			    list.append(map)
-		
-		bdList = dom.getElementsByTagName("BlockDevice")
-		for bd in bdList:
-		    for node in bd.childNodes:
-			    if node.nodeName == 'SCSIid':
-				    SCSIid = node.firstChild.nodeValue
-			    elif node.nodeName == 'adapter':
-				    adapter = ''.join(["host",node.firstChild.nodeValue])
+	    # the target may not return any IQNs
+	    # so prepare for it
+            HBADriver = HBA.HBA()
+	    devlist= HBADriver.print_devs()
+	    TgtList = devlist["Adapter"]
+	    for tgt in TgtList:
+	        if len(HBAFilter) != 0:
+	    	    if HBAFilter.has_key(tgt['host']):
+	    		    list.append(tgt)
+	        else:
+	    	    list.append(tgt)
+	    
+	    bdList = devlist["BlockDevice"]
+	    for bd in bdList:
+	        SCSIid = bd['SCSIid']
+	        adapter = ''.join(["host",bd['adapter']])
+	        if len(HBAFilter) != 0:
+	    	    if HBAFilter.has_key(adapter):
+	    		    scsiIdList.append(SCSIid)
+	        else:
+	    	    scsiIdList.append(SCSIid)
 
-		    if len(HBAFilter) != 0:
-			    if HBAFilter.has_key(adapter):
-				    scsiIdList.append(SCSIid)
-		    else:
-			    scsiIdList.append(SCSIid)
-	
-		XenCertPrint("The HBA information list being returned is: %s" % list)
-	    except Exception, e:
-		XenCertPrint("Failed to parse lvmohba probe xml. Exception: %s" % str(e))
+	    XenCertPrint("The HBA information list being returned is: %s" % list)
+        except Exception, e:
+	    XenCertPrint("Failed to parse lvmohba probe xml. Exception: %s" % str(e))
 	     
     except Exception, e: 
 	XenCertPrint("There was an exception in GetHBAInformation: %s." % str(e))
