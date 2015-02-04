@@ -14,7 +14,7 @@
 # LUNperVDI: Generic Raw LUN handler, used by HBASR and ISCSISR
 #
 
-import SR, VDI, SRCommand, util
+import VDI, util
 import os, sys
 import scsiutil
 import xs_errors
@@ -34,8 +34,6 @@ class RAWVDI(VDI.VDI):
             self.path = self.sr.mpathmodule.path(self.sm_config['SCSIid'])
         except:
             pass
-        if self.sr.cmd == "vdi_introduce":
-            self.managed = True
         
     def _query(self, path, id):
         self.uuid = scsiutil.gen_uuid_from_string(scsiutil.getuniqueserial(path))

@@ -14,7 +14,6 @@
 # VDI: Base class for virtual disk instances
 #
 
-import SR
 import xml.dom.minidom
 import xmlrpclib
 import xs_errors
@@ -94,7 +93,6 @@ class VDI(object):
         self.read_only = False
         self.xenstore_data = {}
         self.deleted = False
-        self.session = sr.session
         self.managed = True
         self.sm_config_override = {}
         self.sm_config_keep = []
