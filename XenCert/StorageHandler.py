@@ -571,8 +571,8 @@ class StorageHandlerISCSI(StorageHandler):
     def ISCSIPerformance(self, diskpath):
         self.RawDiskPerformance(diskpath)
 
-    def ISCSIFunctional(self, testfile):
-        self.RawDiskFuctional(diskpath)
+    def ISCSIFunctional(self, diskpath):
+        self.RawDiskFunctional(diskpath)
 
     def FunctionalTests(self):
         return self.FunctionalOrPerformanceTests('Func')
@@ -1203,10 +1203,10 @@ class StorageHandlerNFS(StorageHandler):
         nfs.unmount(mountpoint, True)
 
     def NFSPerformance(self, testfile):
-        self.FileSystemPerformance(testfile)
+        return self.FileSystemPerformance(testfile)
 
     def NFSFunctional(self, testfile):
-        self.FileSystemFunctional(testfile)
+        return self.FileSystemFunctional(testfile)
 
     def FunctionalTests(self):
         return self.FunctionalOrPerformanceTests('Func')
