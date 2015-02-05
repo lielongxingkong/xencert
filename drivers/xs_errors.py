@@ -45,10 +45,10 @@ class XenError(object):
             if opterr is not None:
                 errormessage += " [opterr=%s]" % opterr
             util.SMlog("Raising exception [%d, %s]" % (errorcode, errormessage))
-            raise SR.SROSError(errorcode, errormessage)
+            raise Exception(errormessage)
 
         # development error
-        raise SR.SROSError(1, "Error reporting error, unknown key %s" % key)
+        raise Exception("Error reporting error, unknown key %s" % key)
             
 
     def _fromxml(self, tag):
