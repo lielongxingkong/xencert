@@ -788,7 +788,7 @@ class StorageHandlerHBA(StorageHandler):
         device_config['adapters'] = self.storage_conf['adapters']
 
         listSCSIId = []
-        (retVal, listAdapters, listSCSIId) = StorageHandlerUtil.GetHBAInformation(self.storage_conf)
+        (retVal, listAdapters, listSCSIId) = StorageHandlerUtil.GetHBAInformation(device_config, nolocal=True)
         if not retVal:                
             raise Exception("   - Failed to get available HBA information on the host.")
         if len(listSCSIId) == 0:                
