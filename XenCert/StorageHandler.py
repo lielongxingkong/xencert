@@ -364,7 +364,7 @@ class StorageHandler:
         util.pread(cmd)
 
     def FileSystemPerformance(self, testfile):
-        size = 100
+        size = 1000
         cmd = ['dd', 'if=/dev/zero', 'of=%s' % testfile, 'bs=1M', 'count=%s' % size, 'oflag=direct']
         DebugCmdArray(cmd)
         time1 = time.time()
