@@ -397,7 +397,8 @@ class StorageHandlerISCSI(StorageHandler):
         self.mdpath = os.path.join(self.mdpath, MDVOLUME_NAME)
 
     def MPConfigVerificationTests(self):
-        return (True, 1, 1)
+        PrintR("iSCSI storage multipath test not supported yet.")
+        return (False, 0, 1)
         
     def removeMGTVolume(self):
         login = False
@@ -1258,7 +1259,8 @@ class StorageHandlerNFS(StorageHandler):
         return (retVal, checkPoints, totalCheckPoints)   
 
     def MPConfigVerificationTests(self):
-        return (True, 1, 1)
+        PrintR("No multipath support for NFS storage.")
+        return (False, 0, 1)
         
     def PoolTests(self):
         return (True, 1, 1) 
