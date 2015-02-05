@@ -348,7 +348,7 @@ class StorageHandler:
             return False
 
     def RawDiskPerformance(self, diskpath):
-        size = 100
+        size = 1000
         cmd = ['dd', 'if=/dev/zero', 'of=%s' % diskpath, 'bs=1M', 'count=%s' % size, 'conv=nocreat', 'oflag=direct']
         DebugCmdArray(cmd)
         time1 = time.time()
