@@ -13,4 +13,6 @@ build
 /virtualenv
 /.tox
 
+/.idea
+
 diskdatatest/diskdatatest
