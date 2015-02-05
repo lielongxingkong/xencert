@@ -791,6 +791,7 @@ def get_path_status(scsi_id, onlyActive = False):
     listPaths = []
     list = []
     retVal = True
+    devname = None
     try:
         lines = mpath_cli.get_topology(scsi_id)
         listPaths = []
@@ -798,6 +799,10 @@ def get_path_status(scsi_id, onlyActive = False):
             m=mpath_cli.regex.search(line)
             if(m):
                 listPaths.append(line)
+
+            n=mpath_cli.regex4.search(line)
+            if(n):
+                devname = line.split()[1].strip()
 
         XenCertPrint("list_paths returned: %s" % listPaths)
 
@@ -830,7 +835,7 @@ def get_path_status(scsi_id, onlyActive = False):
         XenCertPrint("There was some exception in getting path status for scsi id: %s. Exception: %s" % (scsi_id, str(e)))
         retVal = False
 
-    return (retVal, list)
+    return (retVal, list, devname)
 
 def _get_localhost_uuid():
     filename = '/etc/xensource-inventory'

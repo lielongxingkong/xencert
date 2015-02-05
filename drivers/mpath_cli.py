@@ -53,6 +53,7 @@ def resize_map(m):
 regex = re.compile("[0-9]+:[0-9]+:[0-9]+:[0-9]+\s*([a-z]*)")
 regex2 = re.compile("multipathd>(\s*[^:]*:)?\s+(.*)")
 regex3 = re.compile("switchgroup")
+regex4 = re.compile("[0-9A-Fa-f]+ dm-[0-9]+ \w+,\w+")
 
 def is_working():
     cmd="help"
