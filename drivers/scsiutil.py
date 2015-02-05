@@ -323,6 +323,9 @@ def _genReverseSCSIidmap(SCSIid):
     devices = []
     for info in deviceInfo.split('\n'):
         info = info.split()
+        #fix scsiid lsscsi -i cannot get
+        if info[-1].startswith("SATA"):
+            info[-1] = commands.getoutput('scsi_id -g %s' % info[-2])
         if info[-1] == SCSIid:
             devices.append(info[-2])
     return devices
