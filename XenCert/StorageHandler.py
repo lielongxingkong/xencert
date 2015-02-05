@@ -197,6 +197,8 @@ class StorageHandler:
                 displayOperationStatus(True)
                 checkPoint += 1
 
+            #comment multipath failover test
+            '''
             if len(self.listPathConfig) > 1:                
                 for i in range(2, iterationCount):
                     maxTimeTaken = 0
@@ -262,6 +264,7 @@ class StorageHandler:
                     else:
                         displayOperationStatus(True, " " + str(count) + " seconds")
                         checkPoint += 1
+            '''
 
             Print("- Test succeeded.")
  
