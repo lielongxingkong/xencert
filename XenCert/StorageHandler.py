@@ -129,37 +129,40 @@ class StorageHandler:
             totalCheckPoints = 6
             iterationCount = 100
             
+            #TODO
             # Check if block unblock callouts have been defined. Else display an error and fail this test
-            if self.storage_conf['pathHandlerUtil'] == None:                 
-                raise Exception("Path handler util not specified for multipathing tests.")
+            #if self.storage_conf['pathHandlerUtil'] == None:                 
+            #    raise Exception("Path handler util not specified for multipathing tests.")
                 
-            if not os.path.exists(self.storage_conf['pathHandlerUtil']):                 
-                raise Exception("Path handler util specified for multipathing tests does not exist!")
+            #if not os.path.exists(self.storage_conf['pathHandlerUtil']):                 
+            #    raise Exception("Path handler util specified for multipathing tests does not exist!")
             
-            if self.storage_conf['storage_type'] == 'hba' and self.storage_conf['pathInfo'] == None: 
-                raise Exception("Path related information not specified for storage type hba.")
+            #if self.storage_conf['storage_type'] == 'hba' and self.storage_conf['pathInfo'] == None: 
+            #    raise Exception("Path related information not specified for storage type hba.")
             
             if self.storage_conf['count'] != None:
                 iterationCount = int(self.storage_conf['count']) + 1
             
             #1. Enable host Multipathing
-            #TODO
+            #TODO Record resource to release later.
             device_config = self.Create()
 
-            Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
+            Print("MULTIPATH TESTING")
+            #Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
 
             if not self.GetPathStatus(device_config):
                 Print("   - Failed to get and display path status.")
             else:
                 checkPoint += 1
 
-            Print(">> Starting Random Path Block and Restore Iteration test")
-            Print("   This test will choose a random selection of upto (n -1) paths ")
-            Print("   of a total of n to block, and verify that the IO continues")
-            Print("   i.e. the correct paths are detected as failed, within 50 seconds.")
-            Print("   The test then verifies that after unblocking the path, it is ")
-            Print("   restored within 2 minutes.\n\n")
-            Print("   Path Connectivity Details")
+            PrintB(">> Starting Multipath Device IO test")
+            #Print(">> Starting Random Path Block and Restore Iteration test")
+            #Print("   This test will choose a random selection of upto (n -1) paths ")
+            #Print("   of a total of n to block, and verify that the IO continues")
+            #Print("   i.e. the correct paths are detected as failed, within 50 seconds.")
+            #Print("   The test then verifies that after unblocking the path, it is ")
+            #Print("   restored within 2 minutes.\n\n")
+            #Print("   Path Connectivity Details")
             self.DisplayPathStatus()
 
             for (mpDevname, listPathConfig) in self.mapPathConfig.items():
