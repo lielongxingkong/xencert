@@ -353,7 +353,7 @@ def extract_xml_from_exception(e):
     return ','.join(str(e).split(',')[3:])
 
 # The returned structure are a list of portals, and a list of SCSIIds for the specified IQN. 
-def GetHBAInformation(storage_conf):
+def GetHBAInformation(storage_conf, nolocal=False):
     try:
 	retVal = True
 	list = []
@@ -370,10 +370,15 @@ def GetHBAInformation(storage_conf):
 	try:
 	    # the target may not return any IQNs
 	    # so prepare for it
+            localAdapter = []
             HBADriver = HBA.HBA()
 	    devlist= HBADriver.print_devs()
 	    TgtList = devlist["Adapter"]
 	    for tgt in TgtList:
+                if nolocal:
+                    if tgt['name'] == 'mpt2sas':
+                        localAdapter.append(tgt['host'])
+                        continue
 	        if len(HBAFilter) != 0:
 	    	    if HBAFilter.has_key(tgt['host']):
 	    		    list.append(tgt)
@@ -384,6 +389,9 @@ def GetHBAInformation(storage_conf):
 	    for bd in bdList:
 	        SCSIid = bd['SCSIid']
 	        adapter = ''.join(["host",bd['adapter']])
+                if nolocal:
+                    if adapter in localAdapter:
+                        continue
 	        if len(HBAFilter) != 0:
 	    	    if HBAFilter.has_key(adapter):
                         scsiIdList.append(SCSIid)
