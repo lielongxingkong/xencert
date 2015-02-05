@@ -4,3 +4,13 @@
 *~
 *.orig
 *.o
+
+*.egg-info
+/build
+/dist
+build
+
+/virtualenv
+/.tox
+
+diskdatatest/diskdatatest
