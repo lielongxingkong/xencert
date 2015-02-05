@@ -61,7 +61,7 @@ __commonparams__ = [
                                                                                     " : ", None, "optional", "-i", ""],
     ["count", "count of iterations to perform in case of multipathing failover testing",
                                                                                     " : ", None, "optional", "-g", ""],
-    ["type",      "type whether skip whole disk check", " : ", '',        "optional", "-y", ""  ] ]
+    ["type",      "type whether skip whole disk check", " : ", 'q',        "optional", "-T", ""  ] ]
 
 def parse_args(version_string):
     """Parses the command line arguments"""
