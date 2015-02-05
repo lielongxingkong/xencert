@@ -28,4 +28,11 @@ setup(
         'setuptools'
     ] + install_requires,
     license='LGPL',
+    entry_points={
+
+        'console_scripts': [
+            'inspur-xencert = XenCert.main.cli:main',
+        ],
+
+    }
 )
