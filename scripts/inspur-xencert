@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+import os
+import platform
+import sys
+"""
+inspur-xencert: Inspur Toolkit for InCloud Sphere Storage Certification
+"""
+
+if os.path.exists('/usr/share/pyshared/XenCert'):
+    sys.path.insert(0, '/usr/share/pyshared/XenCert/drivers')
+    sys.path.insert(0, '/usr/share/pyshared/XenCert/main')
+elif os.path.exists('/usr/share/XenCert'):
+    sys.path.insert(0, '/usr/share/XenCert/drivers')
+    sys.path.insert(0, '/usr/share/XenCert/main')
+elif os.path.exists('/usr/lib/python2.6/site-packages/XenCert'):
+    sys.path.insert(0, '/usr/lib/python2.6/site-packages/XenCert/drivers')
+    sys.path.insert(0, '/usr/lib/python2.6/site-packages/XenCert/main')
+
+from XenCert.main.cli import main
+
+if __name__ == '__main__':
+    sys.exit(main())
