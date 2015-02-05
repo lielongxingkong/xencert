@@ -151,7 +151,7 @@ class StorageHandler:
             #Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
 
             if not self.GetPathStatus(device_config):
-                Print("   - Failed to get and display path status.")
+                raise Exception("   - Failed to get and display path status.")
             else:
                 checkPoint += 1
 
