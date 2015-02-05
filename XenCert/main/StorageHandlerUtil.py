@@ -55,7 +55,7 @@ BUF_PATTERN = CHAR_SEQ + CHAR_SEQ
 BUF_PATTERN_REV = CHAR_SEQ_REV + CHAR_SEQ_REV
 BUF_ZEROS = "\0" * 512
 
-DISKDATATEST = '/opt/xensource/debug/XenCert/diskdatatest'
+DISKDATATEST = '/opt/inspur/XenCert/diskdatatest'
 
 multiPathDefaultsMap = { 'udev_dir':'/dev',
 			    'polling_interval':'5',

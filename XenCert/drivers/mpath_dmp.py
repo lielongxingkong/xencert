@@ -29,7 +29,7 @@ import re
 iscsi_mpath_file = "/etc/iscsi/iscsid-mpath.conf"
 iscsi_default_file = "/etc/iscsi/iscsid-default.conf"
 iscsi_file = "/etc/iscsi/iscsid.conf"
-hba_script = "/opt/xensource/sm/mpathHBA"
+hba_script = "/opt/inspur/XenCert/mpathHBA"
 
 DMPBIN = "/sbin/multipath"
 DEVMAPPERPATH = "/dev/mapper"
