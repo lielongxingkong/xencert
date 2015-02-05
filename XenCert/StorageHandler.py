@@ -124,9 +124,6 @@ class StorageHandler:
 
     def MPConfigVerificationTests(self):
         try:
-            sr_ref = None
-            vdi_ref = None
-            vbd_ref = None
             retVal =True
             checkPoint = 0
             totalCheckPoints = 6
@@ -139,26 +136,15 @@ class StorageHandler:
             if not os.path.exists(self.storage_conf['pathHandlerUtil']):                 
                 raise Exception("Path handler util specified for multipathing tests does not exist!")
             
-            if self.storage_conf['storage_type'] == 'lvmohba' and self.storage_conf['pathInfo'] == None: 
-                raise Exception("Path related information not specified for storage type lvmohba.")
+            if self.storage_conf['storage_type'] == 'hba' and self.storage_conf['pathInfo'] == None: 
+                raise Exception("Path related information not specified for storage type hba.")
             
             if self.storage_conf['count'] != None:
                 iterationCount = int(self.storage_conf['count']) + 1
             
             #1. Enable host Multipathing
-            disableMP = False
-            if not StorageHandlerUtil.IsMPEnabled(self.session, util.get_localhost_uuid(self.session)): 
-                StorageHandlerUtil.enable_multipathing(self.session, util.get_localhost_uuid(self.session))
-                disableMP = True
-
-            #2. Create and plug SR
-            Print("CREATING SR")
-            (retVal, sr_ref, device_config) = self.Create()            
-            if not retVal:                    
-                raise Exception("      SR creation failed.")
-            else:
-                displayOperationStatus(True)
-                checkPoint += 1
+            #TODO
+            device_config = self.Create()
 
             Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
 
@@ -178,22 +164,14 @@ class StorageHandler:
 
             # make sure there are at least 2 paths for the multipath tests to make any sense.
             if len(self.listPathConfig) < 2:
-                raise Exception("FATAL! At least 2 paths are required for multipath failover testing, please configure your storage accordingly.")
+                PrintY("FATAL! At least 2 paths are required for multipath failover testing, please configure your storage accordingly.")
                 
-            
             # Calculate the number of active paths here
             self.initialActivePaths = 0
             for tuple in self.listPathConfig:
                 if tuple[1] == 'active':
                     self.initialActivePaths += 1
-            
             # Now testing failure times for the paths.  
-            (retVal, vdi_ref, vbd_ref, vdi_size) = StorageHandlerUtil.CreateMaxSizeVDIAndVBD(self.session, sr_ref)
-            if not retVal:
-                raise Exception("Failed to create max size VDI and VBD.")
-            else:
-                checkPoint += 2
-           
             global retValIO
             global timeTaken
             global bytesCopied
@@ -201,13 +179,13 @@ class StorageHandler:
             Print("")
             Print("Iteration 1:\n")
             Print(" -> No manual blocking of paths.")
-            s = TimedDeviceIO(self.session.xenapi.VBD.get_device(vbd_ref))
+            s = TimedDeviceIO(self.mpDevname)
             s.start()
             s.join()
             
             if retValIO != 0:
                 displayOperationStatus(False)
-                raise Exception(" IO tests failed for device: %s" % self.session.xenapi.VBD.get_device(vbd_ref))
+                raise Exception(" IO tests failed for device: %s" % self.mpDevname)
             
             initialDataCopyTime = float(timeTaken.split()[0])
             if initialDataCopyTime > 3:
@@ -295,29 +273,14 @@ class StorageHandler:
 
         try:
             # Try cleaning up here
-            if vbd_ref != None:
-                self.session.xenapi.VBD.unplug(vbd_ref)
-                XenCertPrint("Unplugged VBD %s" % vbd_ref)
-                self.session.xenapi.VBD.destroy(vbd_ref)
-                XenCertPrint("Destroyed VBD %s" % vbd_ref)
-
-            if vdi_ref != None:
-                self.session.xenapi.VDI.destroy(vdi_ref)
-                XenCertPrint("Destroyed VDI %s" % vdi_ref)
-
-            # Try cleaning up here
-            if sr_ref != None:
-                Print("      Destroy the SR.")
-                StorageHandlerUtil.DestroySR(self.session, sr_ref)
 
             # If multipath was enabled by us, disable it, else continue.
-            if disableMP:
-                StorageHandlerUtil.disable_multipathing(self.session, util.get_localhost_uuid(self.session))
+            #TODO
                 
             checkPoint += 1
                 
         except Exception, e:
-            Print("- Could not cleanup the objects created during testing, VBD: %s VDI:%s SR:%s. Please destroy the objects manually. Exception: %s" % (vbd_ref, vdi_ref, sr_ref, str(e)))
+            Print("- Could not cleanup the objects created during testing. Please destroy the objects manually. Exception: %s" % str(e))
             displayOperationStatus(False)
 
         XenCertPrint("Checkpoints: %d, totalCheckPoints: %s" % (checkPoint, totalCheckPoints))
