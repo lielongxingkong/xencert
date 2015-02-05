@@ -65,6 +65,7 @@ class TimedDeviceIO(Thread):
         ddOutFile = 'of=' + devicename
         XenCertPrint("Now copy data from /dev/zero to this device and record the time taken to copy it." )
         cmd = ['dd', 'if=/dev/zero', ddOutFile, 'bs=1M', 'count=1', 'oflag=direct']
+        DebugCmdArray(cmd)
         try:
             global retValIO
             global bytesCopied
