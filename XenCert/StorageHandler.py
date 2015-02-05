@@ -707,10 +707,13 @@ class StorageHandlerISCSI(StorageHandler):
                     
                     pathNo = 0
                     pathPassed = 0
+                    rootDevice = False
                     for tuple in scsiToTupleMap[key]:                        
+                        rootDevice = False
                         # If this is a root device then skip IO tests for this device.
                         if os.path.realpath(util.getrootdev()) == tuple[2]:
-                            Print("     -> Skipping IO tests on device %s, as it is the root device." % tuple[2])
+                            PrintR("     -> Skipping IO tests on device %s, as it is the root device." % tuple[2])
+                            rootDevice = True
                             continue
                         
                         pathNo += 1
@@ -748,7 +751,7 @@ class StorageHandlerISCSI(StorageHandler):
                             displayOperationStatus(False)
                             XenCertPrint("Device %s failed the disk IO test. Please check if the disk is writable." % tuple[2] )
                         
-                    if pathPassed == 0:
+                    if pathPassed == 0 and not rootDevice:
                         displayOperationStatus(False)
                         raise Exception("     - LUN with SCSI ID %-30s. Failed the IO test, none of the paths were writable." % key)                        
                     else:
@@ -1030,10 +1033,13 @@ class StorageHandlerHBA(StorageHandler):
 
                     pathNo = 0
                     pathPassed = 0
+                    rootDevice = False
                     for device in scsiToTupleMap[key]:
+                        rootDevice = False
                         # If this is a root device then skip IO tests for this device.
                         if os.path.realpath(util.getrootdev()) == device:
-                            Print("     -> Skipping IO tests on device %s, as it is the root device." % device)
+                            PrintR("     -> Skipping IO tests on device %s, as it is the root device." % device)
+                            rootDevice = True
                             continue
 
                         pathNo += 1
@@ -1068,7 +1074,7 @@ class StorageHandlerHBA(StorageHandler):
                             Print("        Exception: %s" % str(e))
                             displayOperationStatus(False)
                             XenCertPrint("Device %s failed the disk IO test. Please check if the disk is writable." % device )
-                    if pathPassed == 0:
+                    if pathPassed == 0 and not rootDevice:
                         displayOperationStatus(False)
                         raise Exception("     - LUN with SCSI ID %-30s. Failed the IO test, none of the paths were writable." % key)                        
                     else:
