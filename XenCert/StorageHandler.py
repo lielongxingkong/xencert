@@ -162,44 +162,46 @@ class StorageHandler:
             Print("   Path Connectivity Details")
             self.DisplayPathStatus()
 
-            # make sure there are at least 2 paths for the multipath tests to make any sense.
-            if len(self.listPathConfig) < 2:
-                PrintY("FATAL! At least 2 paths are required for multipath failover testing, please configure your storage accordingly.")
+            for (mpDevname, listPathConfig) in self.mapPathConfig.items():
+                # make sure there are at least 2 paths for the multipath tests to make any sense.
+                if len(listPathConfig) < 2:
+                    PrintY("FATAL! At least 2 paths are required for multipath failover testing, please configure your storage accordingly.")
+                    
+                # Calculate the number of active paths here
+                self.initialActivePaths = 0
+                for tuple in listPathConfig:
+                    if tuple[1] == 'active':
+                        self.initialActivePaths += 1
+                # Now testing failure times for the paths.  
+                global retValIO
+                global timeTaken
+                global bytesCopied
+                global speedOfCopy
+                Print("")
+                Print("Iteration 1 for Multipath Device %s:\n" % mpDevname)
+                Print(" -> No manual blocking of paths.")
+                s = TimedDeviceIO(mpDevname)
+                s.start()
+                s.join()
                 
-            # Calculate the number of active paths here
-            self.initialActivePaths = 0
-            for tuple in self.listPathConfig:
-                if tuple[1] == 'active':
-                    self.initialActivePaths += 1
-            # Now testing failure times for the paths.  
-            global retValIO
-            global timeTaken
-            global bytesCopied
-            global speedOfCopy
-            Print("")
-            Print("Iteration 1:\n")
-            Print(" -> No manual blocking of paths.")
-            s = TimedDeviceIO(self.mpDevname)
-            s.start()
-            s.join()
-            
-            if retValIO != 0:
-                displayOperationStatus(False)
-                raise Exception(" IO tests failed for device: %s" % self.mpDevname)
-            
-            initialDataCopyTime = float(timeTaken.split()[0])
-            if initialDataCopyTime > 3:
-                displayOperationStatus(False, timeTaken)
-                Print("    - The initial data copy is too slow at %s" % timeTaken )
-                dataCopyTooSlow = True
-            else:
-                Print("    - IO test passed. Time: %s. Data: %s. Throughput: %s" % (timeTaken, '1MB', speedOfCopy))
-                displayOperationStatus(True)
+                if retValIO != 0:
+                    displayOperationStatus(False)
+                    raise Exception(" IO tests failed for device: %s" % mpDevname)
+                
+                initialDataCopyTime = float(timeTaken.split()[0])
+                if initialDataCopyTime > 3:
+                    displayOperationStatus(False, timeTaken)
+                    Print("    - The initial data copy is too slow at %s" % timeTaken )
+                    dataCopyTooSlow = True
+                else:
+                    Print("    - IO test passed. Time: %s. Data: %s. Throughput: %s" % (timeTaken, '1MB', speedOfCopy))
+                    displayOperationStatus(True)
+
                 checkPoint += 1
 
             #comment multipath failover test
             '''
-            if len(self.listPathConfig) > 1:                
+            if len(listPathConfig) > 1:                
                 for i in range(2, iterationCount):
                     maxTimeTaken = 0
                     throughputForMaxTime = ''
@@ -208,18 +210,18 @@ class StorageHandler:
                     if not self.RandomlyFailPaths():                                            
                         raise Exception("Failed to block paths.")
                     
-                    XenCertPrint("Dev Path Config = '%s', no of Blocked switch Paths = '%s'" % (self.listPathConfig, self.noOfPaths))
+                    XenCertPrint("Dev Path Config = '%s', no of Blocked switch Paths = '%s'" % (listPathConfig, self.noOfPaths))
 
                     # Fail path calculation needs to be done only in case of hba SRs
                     if "blockunblockhbapaths" in \
                             self.storage_conf['pathHandlerUtil'].split('/')[-1]:
                         #Calculate the number of devices to be found after the path block
-                        devicesToFail = (len(self.listPathConfig)/self.noOfTotalPaths) * self.noOfPaths
+                        devicesToFail = (len(listPathConfig)/self.noOfTotalPaths) * self.noOfPaths
                         XenCertPrint("Expected devices to fail: %s" % devicesToFail)
                     else:
                         devicesToFail = self.noOfPaths
 
-                    s = WaitForFailover(self.session, device_config['SCSIid'], len(self.listPathConfig), devicesToFail)
+                    s = WaitForFailover(self.session, device_config['SCSIid'], len(listPathConfig), devicesToFail)
                     s.start()
                     
                     while s.isAlive():
@@ -461,10 +463,11 @@ class StorageHandlerISCSI(StorageHandler):
 
             Print("     }")
  
-            (retVal, self.listPathConfig, self.mpDevname) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
-            if not retVal or self.mpDevname == None:
+            (retVal, listPathConfig, mpDevname) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
+            if not retVal or mpDevname == None:
                 raise Exception("Failed to get path status information for SCSI Id: %s" % device_config['SCSIid'])
-            XenCertPrint("The path status extracted from multipathd is %s" % self.listPathConfig)
+            XenCertPrint("The path status extracted from multipathd is %s" % listPathConfig)
+            self.mapPathConfig[mpDevname] = listPathConfig
             
             return True
         except Exception, e:
@@ -472,10 +475,11 @@ class StorageHandlerISCSI(StorageHandler):
             return False            
 
     def DisplayPathStatus(self):
-        PrintY("       Multipath Mapping Device on %s" % self.mpDevname)
-        Print("       %-15s %-15s %-25s %-15s" % ('IP address', 'HBTL','Path DM status','Path status')            )
-        for item in self.listPathConfig:
-            Print("       %-15s %-15s %-25s %-15s" % (StorageHandlerUtil.findIPAddress(self.mapIPToHost, item[0]), item[0], item[1], item[2]))
+        for (mpDevname, listPathConfig) in self.mapPathConfig.items():
+            PrintY("       Multipath Mapping Device on %s" % mpDevname)
+            Print("       %-15s %-15s %-25s %-15s" % ('IP address', 'HBTL','Path DM status','Path status')            )
+            for item in listPathConfig:
+                Print("       %-15s %-15s %-25s %-15s" % (StorageHandlerUtil.findIPAddress(self.mapIPToHost, item[0]), item[0], item[1], item[2]))
             
     def RandomlyFailPaths(self):
         try:
@@ -794,38 +798,39 @@ class StorageHandlerHBA(StorageHandler):
         if len(listSCSIId) == 0:                
             raise Exception("   - Failed to get available LUNs on the host.")
 
-        for scsiId in listSCSIId:
-            device_config['SCSIid'] = scsiId
-            break
+        device_config['SCSIid'] = ','.join(listSCSIId)
         return device_config
 
     def GetPathStatus(self, device_config):
         # Query DM-multipath status, reporting a) Path checker b) Path Priority handler c) Number of paths d) distribution of active vs passive paths
         try:            
-            (retVal, configMap) = StorageHandlerUtil.GetConfig(device_config['SCSIid'])
-            if not retVal:                
-                raise Exception("   - Failed to get SCSI config information for SCSI Id: %s" % device_config['SCSIid'])
+            self.mapPathConfig = {}
+            for SCSIid in device_config['SCSIid'].split(','):
+                (retVal, configMap) = StorageHandlerUtil.GetConfig(SCSIid)
+                if not retVal:                
+                    raise Exception("   - Failed to get SCSI config information for SCSI Id: %s" % SCSIid)
 
-            XenCertPrint("The config map extracted from scsi_id %s is %s" % (device_config['SCSIid'], configMap))
-            
-            # Get path_checker and priority handler for this device.
-            (retVal, mpath_config) = StorageHandlerUtil.parse_config(configMap['ID_VENDOR'], configMap['ID_MODEL'])
-            if not retVal:
-                raise Exception("   - Failed to get multipathd config information for vendor: %s and product: %s" % (configMap['ID_VENDOR'], configMap['ID_MODEL']))
+                XenCertPrint("The config map extracted from scsi_id %s is %s" % (SCSIid, configMap))
                 
-            XenCertPrint("The mpath config extracted from multipathd is %s" % mpath_config)
+                # Get path_checker and priority handler for this device.
+                (retVal, mpath_config) = StorageHandlerUtil.parse_config(configMap['ID_VENDOR'], configMap['ID_MODEL'])
+                if not retVal:
+                    raise Exception("   - Failed to get multipathd config information for vendor: %s and product: %s" % (configMap['ID_VENDOR'], configMap['ID_MODEL']))
+                    
+                XenCertPrint("The mpath config extracted from multipathd is %s" % mpath_config)
 
-            Print(">> Multipathd enabled for %s, %s with the following config:" % (configMap['ID_VENDOR'], configMap['ID_MODEL']))
-            Print("     device {")
-            for key in mpath_config:
-                Print("             %s %s" % (key, mpath_config[key]))
+                PrintY(">> Multipathd enabled for LUN %s, %s, %s with the following config:" % (SCSIid, configMap['ID_VENDOR'], configMap['ID_MODEL']))
+                Print("     device {")
+                for key in mpath_config:
+                    Print("             %s %s" % (key, mpath_config[key]))
 
-            Print("     }")
+                Print("     }")
  
-            (retVal, self.listPathConfig, self.mpDevname) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
-            if not retVal or self.mpDevname == None:                
-                raise Exception("Failed to get path status information for SCSI Id: %s" % device_config['SCSIid'])
-            XenCertPrint("The path status extracted from multipathd is %s" % self.listPathConfig)
+                (retVal, listPathConfig, mpDevname) = StorageHandlerUtil.get_path_status(SCSIid)
+                if not retVal or mpDevname == None:                
+                    raise Exception("Failed to get path status information for SCSI Id: %s" % SCSIid)
+                XenCertPrint("The path status extracted from multipathd is %s" % listPathConfig)
+                self.mapPathConfig[mpDevname] = listPathConfig
             
             return True
         except Exception, e:
@@ -833,10 +838,11 @@ class StorageHandlerHBA(StorageHandler):
             return False            
 
     def DisplayPathStatus(self):
-        PrintY("       Multipath Mapping Device on %s" % self.mpDevname)
-        Print("       %-15s %-25s %-15s" % ('HBTL','Path DM status','Path status')            )
-        for item in self.listPathConfig:
-            Print("       %-15s %-25s %-15s" % (item[0], item[1], item[2]))
+        for (mpDevname, listPathConfig) in self.mapPathConfig.items():
+            PrintY("       Multipath Mapping Device on %s" % mpDevname)
+            Print("       %-15s %-25s %-15s" % ('HBTL','Path DM status','Path status')            )
+            for item in listPathConfig:
+                Print("       %-15s %-25s %-15s" % (item[0], item[1], item[2]))
             
     def RandomlyFailPaths(self):
         try:
