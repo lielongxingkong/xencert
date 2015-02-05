@@ -461,8 +461,8 @@ class StorageHandlerISCSI(StorageHandler):
 
             Print("     }")
  
-            (retVal, self.listPathConfig) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
-            if not retVal:                
+            (retVal, self.listPathConfig, self.mpDevname) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
+            if not retVal or self.mpDevname == None:
                 raise Exception("Failed to get path status information for SCSI Id: %s" % device_config['SCSIid'])
             XenCertPrint("The path status extracted from multipathd is %s" % self.listPathConfig)
             
@@ -472,6 +472,7 @@ class StorageHandlerISCSI(StorageHandler):
             return False            
 
     def DisplayPathStatus(self):
+        PrintY("       Multipath Mapping Device on %s" % self.mpDevname)
         Print("       %-15s %-15s %-25s %-15s" % ('IP address', 'HBTL','Path DM status','Path status')            )
         for item in self.listPathConfig:
             Print("       %-15s %-15s %-25s %-15s" % (StorageHandlerUtil.findIPAddress(self.mapIPToHost, item[0]), item[0], item[1], item[2]))
@@ -821,8 +822,8 @@ class StorageHandlerHBA(StorageHandler):
 
             Print("     }")
  
-            (retVal, self.listPathConfig) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
-            if not retVal:                
+            (retVal, self.listPathConfig, self.mpDevname) = StorageHandlerUtil.get_path_status(device_config['SCSIid'])
+            if not retVal or self.mpDevname == None:                
                 raise Exception("Failed to get path status information for SCSI Id: %s" % device_config['SCSIid'])
             XenCertPrint("The path status extracted from multipathd is %s" % self.listPathConfig)
             
@@ -832,6 +833,7 @@ class StorageHandlerHBA(StorageHandler):
             return False            
 
     def DisplayPathStatus(self):
+        PrintY("       Multipath Mapping Device on %s" % self.mpDevname)
         Print("       %-15s %-25s %-15s" % ('HBTL','Path DM status','Path status')            )
         for item in self.listPathConfig:
             Print("       %-15s %-25s %-15s" % (item[0], item[1], item[2]))
