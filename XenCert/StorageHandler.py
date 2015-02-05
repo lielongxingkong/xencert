@@ -426,7 +426,7 @@ class StorageHandlerISCSI(StorageHandler):
             device_config['chapuser'] = self.storage_conf['chapuser']
             device_config['chappassword'] = self.storage_conf['chappasswd']
 
-        listPortalIQNs = self.ISCSIDiscoveryTargets([device_config['target'],], [device_config['targetIQN'],])
+        listPortalIQNs = self.ISCSIDiscoveryTargets(device_config['target'].split(','), device_config['targetIQN'].split(','))
         if len(listPortalIQNs) == 0:
             raise Exception("   - No Target found!")
         portal, iqn = listPortalIQNs[0]
