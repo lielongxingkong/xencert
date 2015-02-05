@@ -959,24 +959,6 @@ class StorageHandlerHBA(StorageHandler):
                     if first and len(listLunInfo) > 0:
                         Print("     %-4s\t%-34s\t%-20s\t%-10s" % ('LUN', 'SCSI-ID', 'Device', 'Size(MiB)'))
                         first = False
-                        refListLuns = listLunInfo
-                    else:
-                        # Compare with ref list to make sure the same LUNs have been exposed.
-                        if len(listLunInfo) != len(refListLuns):                            
-                            raise Exception("     - Different number of LUNs exposed by different host ids.")
-                               
-                        # Now compare each element of the list to make sure it matches the ref list
-                        for lun in listLunInfo:
-                            found = False
-                            for refLun in refListLuns:
-                                if refLun['id'] == lun['id'] and refLun['SCSIid'] == lun['SCSIid']:
-                                    found = True
-                                    break
-                            if not found:
-                                raise Exception("     - Different number of LUNs exposed by different host ids.")
-                            else:
-                                continue
-                        checkPoint += 1
                                                     
                     for lun in listLunInfo:
                         # Find the HBTL for this lun
