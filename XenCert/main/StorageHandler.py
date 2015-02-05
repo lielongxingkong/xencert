@@ -126,7 +126,7 @@ class StorageHandler:
         try:
             retVal =True
             checkPoint = 0
-            totalCheckPoints = 6
+            totalCheckPoints = 2
             iterationCount = 100
             
             #TODO
@@ -166,6 +166,7 @@ class StorageHandler:
             self.DisplayPathStatus()
 
             for (mpDevname, listPathConfig) in self.mapPathConfig.items():
+                totalCheckPoints += 1
                 # make sure there are at least 2 paths for the multipath tests to make any sense.
                 if len(listPathConfig) < 2:
                     PrintY("FATAL! At least 2 paths are required for multipath failover testing, please configure your storage accordingly.")
