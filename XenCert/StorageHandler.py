@@ -395,6 +395,9 @@ class StorageHandlerISCSI(StorageHandler):
         # add SR name_label
         self.mdpath = os.path.join(VG_LOCATION, VG_PREFIX + self.sr_uuid)
         self.mdpath = os.path.join(self.mdpath, MDVOLUME_NAME)
+
+    def MPConfigVerificationTests(self):
+        return (True, 1, 1)
         
     def removeMGTVolume(self):
         login = False
