@@ -399,6 +399,9 @@ def GetHBAInformation(storage_conf, nolocal=False):
 	    	    scsiIdList.append(SCSIid)
 
 	    XenCertPrint("The HBA information list being returned is: %s" % list)
+
+            if len(list) == 0 or len(scsiIdList) == 0:
+                retVal = False
         except Exception, e:
 	    XenCertPrint("Failed to parse lvmohba probe xml. Exception: %s" % str(e))
 	     
