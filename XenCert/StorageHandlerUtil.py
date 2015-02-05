@@ -423,6 +423,9 @@ def GetLunInformation(id):
             busid = info[0][1:-1].split(':')
             if busid[0] != id:
                 continue
+            #fix scsiid lsscsi -i cannot get
+            if info[-1].startswith("SATA"):
+                info[-1] = commands.getoutput('scsi_id -g %s' % info[-2])
             map = {}
             map['SCSIid'] = info[-1]
             map['id'] = busid[-1]
@@ -703,7 +706,10 @@ def get_lun_scsiid_devicename_mapping(targetIQN, portal):
             busId = info[0]
             transport = info[2]
             realPath = info[3]
-            scsiId = info[4]
+            #fix scsiid lsscsi -i cannot get
+            if info[-1].startswith("SATA"):
+                info[-1] = commands.getoutput('scsi_id -g %s' % info[-2])
+            scsiId = info[-1]
             if transport[:3] != 'iqn':
                 continue
             lunId = busId[1:-1].split(':')[3]
