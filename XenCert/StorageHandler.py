@@ -649,7 +649,11 @@ class StorageHandlerISCSI(StorageHandler):
                         sectors = util.get_single_entry(filelist[0])
                         size = int(sectors) * 512 / 1024 / 1024
                         Print("     %-23s\t%-4s\t%-34s\t%-10s" % (portal, key, lunToScsi[key][0], size))
-                        timeForIOTestsInSec += StorageHandlerUtil.FindDiskDataTestEstimate(lunToScsi[key][1], size)
+
+                        devname = lunToScsi[key][1]
+                        if os.path.realpath(util.getrootdev()) != devname and not quickTest:
+                            timeForIOTestsInSec += StorageHandlerUtil.FindDiskDataTestEstimate(devname, size)
+
                         if scsiToTupleMap.has_key(lunToScsi[key][0]):
                             scsiToTupleMap[lunToScsi[key][0]].append(( portal, iqn, lunToScsi[key][1]))
                         else:
@@ -983,7 +987,11 @@ class StorageHandlerHBA(StorageHandler):
                         sectors = util.get_single_entry(filelist[0])
                         size = int(sectors) * 512 / 1024 / 1024
                         Print("     %-4s\t%-34s\t%-20s\t%-10s" % (lun['id'], lun['SCSIid'], lun['device'], size))
-                        timeForIOTestsInSec += StorageHandlerUtil.FindDiskDataTestEstimate( lun['device'], size)
+
+                        devname = lun['device']
+                        if os.path.realpath(util.getrootdev()) != devname and not quickTest:
+                            timeForIOTestsInSec += StorageHandlerUtil.FindDiskDataTestEstimate(devname, size)
+
                         if scsiToTupleMap.has_key(lun['SCSIid']):
                             scsiToTupleMap[lun['SCSIid']].append(lun['device'])
                         else:
