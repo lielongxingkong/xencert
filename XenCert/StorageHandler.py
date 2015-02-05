@@ -899,7 +899,7 @@ class StorageHandlerHBA(StorageHandler):
 
         retVal = True
         checkPoint = 0
-        totalCheckPoints = 4
+        totalCheckPoints = 3
         timeForIOTestsInSec = 0
         totalSizeInMiB = 0
         quickTest = False
