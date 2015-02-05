@@ -151,7 +151,7 @@ class StorageHandler:
             #Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
 
             if not self.GetPathStatus(device_config):
-                Print("   - Failed to get and display path status.")
+                raise Exception("   - Failed to get and display path status.")
             else:
                 checkPoint += 1
 
@@ -899,7 +899,7 @@ class StorageHandlerHBA(StorageHandler):
 
         retVal = True
         checkPoint = 0
-        totalCheckPoints = 4
+        totalCheckPoints = 3
         timeForIOTestsInSec = 0
         totalSizeInMiB = 0
         quickTest = False

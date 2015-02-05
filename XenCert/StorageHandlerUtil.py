@@ -848,6 +848,9 @@ def get_path_status(scsi_id, onlyActive = False):
                 list.append((hbtl, dm_status, path_status))
 
         XenCertPrint("Returning list: %s" % list)
+        if len(list) == 0:
+            PrintR("There was some error in getting multipath status for scsi id: %s." % scsi_id)
+            retVal = False
     except Exception, e:
         XenCertPrint("There was some exception in getting path status for scsi id: %s. Exception: %s" % (scsi_id, str(e)))
         retVal = False
