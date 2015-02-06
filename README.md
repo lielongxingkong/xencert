@@ -9,18 +9,13 @@
 + **Performance Test**
 + **Multipath Test**
 
-```
-	/--------------+-------+-------+-------+-------+
-	|              |  HBA  | ISCSI |  NFS  |  RAID |
-	|--------------+-------+-------+-------+-------|
-	|  multipath   |  yes  | future|  none |  none |
-	|--------------+-------+-------+-------+-------|
-	|  functional  |  yes  |  yes  |  yes  |  next |
-	|--------------+-------+-------+-------+-------|
-	|  performance |  yes  |  yes  |  yes  |  next |
-	+--------------+-------+-------+-------+-------/
+  |               |  FC   | SAS  | ISCSI |  NFS  |  RAID |
+  | ------------- | ----- | ---- | ----- | ----- | ----- |
+  | multipath     | yes   | none | future| none  | none  |
+  | functional    | yes   | yes  | yes   | yes   | next  |
+  | performance   | yes   | yes  | yes   | yes   | next  |
+  | path failover | future| none | future| none  | none  |
 
-```
   
 
 ##2. inspur-xencert command usage
