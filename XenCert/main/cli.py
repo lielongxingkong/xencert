@@ -21,11 +21,11 @@
 import os
 import sys
 import XenCertCommon
-from StorageHandlerUtil import Print, PrintR, PrintG, PrintY, PrintB
-from StorageHandlerUtil import PrintToLog
-from StorageHandlerUtil import InitLogging
-from StorageHandlerUtil import UnInitLogging
-from StorageHandlerUtil import GetLogFileName
+from Logging import Print, PrintR, PrintG, PrintY, PrintB
+from Logging import PrintToLog
+from Logging import InitLogging
+from Logging import UnInitLogging
+from Logging import GetLogFileName
 from datetime import datetime
 import time, commands
 
