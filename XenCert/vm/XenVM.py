@@ -22,6 +22,8 @@ import commands
 from Image import Image
 from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
+DEFAULT_VM_DIRS = ['/mnt',]
+
 def get_boot(first=None):
     order = ''
     default = ['d', 'n', 'c']
