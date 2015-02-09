@@ -137,7 +137,7 @@ class XenVM():
         self.store()
             
     def remove(self):
-        pass
+        shutil.rmtree(self.root_path)
 
     def load(self):
         cf = ConfigParser.ConfigParser()
