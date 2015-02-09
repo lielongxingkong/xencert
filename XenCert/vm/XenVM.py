@@ -15,8 +15,10 @@ import os, sys, re, time
 import uuid
 import ConfigParser
 
-from StorageHandlerUtil import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
+sys.path.insert(0, "../drivers")
+sys.path.insert(0, "drivers")
 
+from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 def get_boot(first=None):
     order = ''
