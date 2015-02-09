@@ -19,7 +19,7 @@
 
 from optparse import OptionParser
 import StorageHandler
-from StorageHandlerUtil import Print
+from Logging import Print
 
 storage_type = "storage type (iscsi, hba, nfs, isl)"
 

@@ -21,6 +21,10 @@ sys.path.insert(0, "../drivers")
 sys.path.insert(0, "drivers")
 import scsiutil
 import util
+from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
+from Logging import PrintOnSameLine
+from Logging import XenCertPrint
+from Logging import displayOperationStatus
 import glob
 import xml.dom.minidom
 import lvutil, vhdutil
@@ -66,101 +70,25 @@ multiPathDefaultsMap = { 'udev_dir':'/dev',
 			    'rr_min_io':'1000',
 			    'rr_weight':'uniform',
 			    'failback':'manual',
-			    'no_path_retry':'fail',
-			    'user_friendly_names':'no' }
+			    'user_friendly_names':'no',
+	                    'find_multipaths':'yes',
+                            'verbosity':'2',
+                            'prio':'const',
+                            'rr_min_io_rq':'1',
+                            'no_path_retry':'0',
+                            'queue_without_daemon':'no',
+                            'flush_on_last_del':'no',
+                            'max_fds':'max',
+                            'checker_timeout':'30',
+                            'hwtable_regex_match':'no',
+                            'retain_attached_hw_handler':'no',
+                            'detect_prio':'no',
+                            'multipath_dir':'/lib64/multipath',
+                            'dev_loss_tmo':'no',
+                            'replace_wwid_whitespace':'yes',
+                            'reload_readwrite':'no',
+                            }
 
-def PrintToLog(message):
-    try:
-	global logfile
-	logfile.write(message)
-        logfile.flush()
-    except:
-	pass
-     
-def color_it(message, color=None):
-    color_map = {
-        'r' : 31,
-        'g' : 32,
-        'y' : 33,
-        'b' : 34,
-        'w' : 37,
-    }
-    if color in color_map.keys():
-	message = ('\033[1;%dm' % color_map[color]) + message 
-	message = message + '\033[0m'
-    return message
-    
-def PrintB(message):
-    message = color_it(message, 'b')
-    Print(message)
-
-def PrintG(message):
-    message = color_it(message, 'g')
-    Print(message)
-
-def PrintY(message):
-    message = color_it(message, 'y')
-    Print(message)
-
-def PrintR(message):
-    message = color_it(message, 'r')
-    Print(message)
-
-def DebugCmd(cmd):
-    PrintR("# " + cmd)
-
-def DebugCmdArray(cmd):
-    if type(cmd) == type([]):
-        DebugCmd(" ".join(cmd))
-    elif type(cmd) == type(""):
-        DebugCmd(cmd)
-    else:
-        DebugCmd(str(cmd))
-
-def Print(message):
-    # Print to the stdout and to a temp file.
-    try:
-	sys.stdout.write(message)
-	sys.stdout.write('\n')
-	global logfile
-	logfile.write(message)
-	logfile.write('\n')
-        logfile.flush()
-    except:
-	pass
-
-def PrintOnSameLine(message):
-    # Print to the stdout and to a temp file.
-    try:
-	sys.stdout.write(message)
-	global logfile
-	logfile.write(message)	
-        logfile.flush()
-    except:
-	pass
-    
-def InitLogging():
-    global logfile
-    global logfilename
-    logfilename = os.path.join('/tmp', 'XenCert-' + commands.getoutput('uuidgen') + '.log')
-    logfile = open(logfilename, 'a')
-
-def UnInitLogging():
-    global logfile
-    logfile.close()
-    
-def GetLogFileName():
-    global logfilename
-    return logfilename
-
-def XenCertPrint(message):
-    util.SMlog("XenCert - " + message)
-
-def displayOperationStatus(passOrFail, customValue = ''):
-    if passOrFail:
-        PrintG("                                                                                                   PASS [Completed%s]" % customValue)
-    else:
-        PrintR("                                                                                                   FAIL [%s]" % time.asctime(time.localtime()))
 
 def _init_adapters():
     # Generate a list of active adapters
@@ -721,6 +649,21 @@ def get_lun_scsiid_devicename_mapping(targetIQN, portal):
     except util.CommandException, inst:
         XenCertPrint("Failed to find any LUNs for IQN: %s and portal: %s" % targetIQN, portal)
         return {}
+
+def update_multipath_conf():
+    try:
+        f = open("/etc/multipath.conf", "w")
+        f.write('defaults {\n')
+        for key, value in multiPathDefaultsMap.items(): 
+            value = value.strip()
+            value = '"' + str(value) + '"' if ' ' in value else str(value)
+            f.write('\t' + key + ' ' + value + '\n')
+        f.write('}\n')
+        f.close()
+        return True
+    except Exception, e:
+        XenCertPrint("Failed to write to multipath config, Error: %s" % str(e))
+        return False
 
 def parse_config(vendor, product):
     try:

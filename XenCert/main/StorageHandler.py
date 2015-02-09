@@ -18,10 +18,10 @@
 """Storage handler classes for various storage drivers"""
 import sys
 import StorageHandlerUtil
-from StorageHandlerUtil import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
-from StorageHandlerUtil import PrintOnSameLine
-from StorageHandlerUtil import XenCertPrint
-from StorageHandlerUtil import displayOperationStatus
+from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
+from Logging import PrintOnSameLine
+from Logging import XenCertPrint
+from Logging import displayOperationStatus
 from StorageHandlerUtil import DISKDATATEST
 from StorageHandlerUtil import CreateImg, RemoveImg, WriteDataToImg, VerifyDataOnImg
 import scsiutil, iscsilib
@@ -126,7 +126,7 @@ class StorageHandler:
         try:
             retVal =True
             checkPoint = 0
-            totalCheckPoints = 2
+            totalCheckPoints = 3
             iterationCount = 100
             
             #TODO
@@ -146,6 +146,11 @@ class StorageHandler:
             #1. Enable host Multipathing
             #TODO Record resource to release later.
             device_config = self.Create()
+
+            if not StorageHandlerUtil.update_multipath_conf():
+                raise Exception("   - Failed to update multipath config.")
+            else:
+                checkPoint += 1
 
             Print("MULTIPATH TESTING")
             #Print("MULTIPATH AUTOMATED PATH FAILOVER TESTING")
