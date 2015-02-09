@@ -45,12 +45,6 @@ def get_boot(first=None):
     order += ''.join(default)
     return order
 
-def write_to_config(XenVM):
-    pass
-
-def read_from_config(config_path):
-    pass
-
 def create_disks(disk_num, path):
     disks = []
     for i in range(disk_num):
@@ -144,12 +138,40 @@ class XenVM():
         cf.read(self.conf_path)
 
     def store(self):
-        dic = self._to_dict()
-        cf = ConfigParser.ConfigParser()
-        cf.write(open(self.conf_path, "w"))
+        
+        with open(self.conf_path, "w") as f:
+            for key,val in self._to_dict().items():
+                line = key + ' = ' + repr(val) + '\n'
+                f.write(line)
 
     def _to_dict(self):
-        return {}
+        config = {}
+        config['vcpus'] = self.vcpus
+        config['memory'] = self.memory
+        config['name'] = self.name
+        config['usbdevice'] = self.usbdevice
+        config['boot'] = self.boot
+        config['splash_time'] = self.splash_time
+        config['spice'] = self.spice
+        config['builder'] = self.builder
+        config['usb'] = self.usb
+        config['vnc'] = self.vnc
+        config['serial'] = self.serial
+        config['xen_platform'] = self.xen_platform_pci
+        config['vga'] = self.vga
+
+        disks = []
+        for img in self.disks:
+            disk = {}
+            disk['format'] = 'raw'
+            disk['vdev'] = img.name
+            disk['backendtype'] = 'qdisk'
+            disk['target'] = img.path
+            disk = ','.join('%s=%s' % (k,v) for k,v in disk.items())
+            disks.append(disk)
+        config['disk'] = disks
+
+        return config
 
     def start(self):
         create_domain(self.conf_path)
