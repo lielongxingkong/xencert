@@ -113,8 +113,10 @@ class XenVM():
         self.vga = "stdvga"
 
     def create(self):
+        os.mkdir(self.root_path)
         self.disks = create_disks(self.disk_num, self.root_path)
         self.vifs = create_vifs(self.vif_num)
+        self.store()
             
     def remove(self):
         pass
