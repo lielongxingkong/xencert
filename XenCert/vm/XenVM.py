@@ -36,7 +36,8 @@ def get_boot(first=None):
     else:
         raise Exception("Unknown boot type %s" % first)
 
-    return order += ''.join(default)
+    order += ''.join(default)
+    return order
 
 def write_to_config(XenVM):
     pass
