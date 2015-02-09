@@ -45,11 +45,19 @@ def write_to_config(XenVM):
 def read_from_config(config_path):
     pass
 
-def create_disks(disks):
-    return []
+def create_disks(disk_num, path):
+    disks = []
+    for i in range(disk_num):
+        img = Image(1000, path, 'xvd' + chr(ord('a') + i))
+        img.create()
+        disks.append(img) 
+    return disks
 
-def create_vifs(vifs):
-    return []
+def create_vifs(vif_num):
+    vifs = []
+    for i in range(vif_num):
+        pass
+    return vifs 
 
 def domain_running(name):
     if domain_id(name) != None:
@@ -89,8 +97,8 @@ class XenVM():
            
         self.boot = get_boot(first_boot)
         
-        self.disks = create_disks(disk_num)
-        self.vifs = create_vifs(vif_num)
+        self.disk_num = disk_num
+        self.vif_num = vif_num
 
         self.domid = None
 
@@ -105,7 +113,8 @@ class XenVM():
         self.vga = "stdvga"
 
     def create(self):
-        pass
+        self.disks = create_disks(self.disk_num, self.root_path)
+        self.vifs = create_vifs(self.vif_num)
             
     def remove(self):
         pass
