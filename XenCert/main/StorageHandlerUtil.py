@@ -70,8 +70,24 @@ multiPathDefaultsMap = { 'udev_dir':'/dev',
 			    'rr_min_io':'1000',
 			    'rr_weight':'uniform',
 			    'failback':'manual',
-			    'no_path_retry':'fail',
-			    'user_friendly_names':'no' }
+			    'user_friendly_names':'no',
+	                    'find_multipaths':'yes',
+                            'verbosity':'2',
+                            'prio':'const',
+                            'rr_min_io_rq':'1',
+                            'no_path_retry':'0',
+                            'queue_without_daemon':'no',
+                            'flush_on_last_del':'no',
+                            'max_fds':'max',
+                            'checker_timeout':'30',
+                            'hwtable_regex_match':'no',
+                            'retain_attached_hw_handler':'no',
+                            'detect_prio':'no',
+                            'multipath_dir':'/lib64/multipath',
+                            'dev_loss_tmo':'no',
+                            'replace_wwid_whitespace':'yes',
+                            'reload_readwrite':'no',
+                            }
 
 
 def _init_adapters():
@@ -633,6 +649,21 @@ def get_lun_scsiid_devicename_mapping(targetIQN, portal):
     except util.CommandException, inst:
         XenCertPrint("Failed to find any LUNs for IQN: %s and portal: %s" % targetIQN, portal)
         return {}
+
+def update_multipath_conf():
+    try:
+        f = open("/etc/multipath.conf", "w")
+        f.write('defaults {\n')
+        for key, value in multiPathDefaultsMap.items(): 
+            value = value.strip()
+            value = '"' + str(value) + '"' if ' ' in value else str(value)
+            f.write('\t' + key + ' ' + value + '\n')
+        f.write('}\n')
+        f.close()
+        return True
+    except Exception, e:
+        XenCertPrint("Failed to write to multipath config, Error: %s" % str(e))
+        return False
 
 def parse_config(vendor, product):
     try:
