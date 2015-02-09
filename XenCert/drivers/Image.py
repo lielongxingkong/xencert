@@ -19,7 +19,7 @@ import os, uuid
 DEFAULT_IMG_DIRS=['/mnt', ] 
 
 class Image(object):
-    def __init__(self, store_dir=None, name=None, size=None):
+    def __init__(self, size, store_dir=None, name=None):
         self.size = size  #size in MB
         if name == None:
             self.name = str(uuid.uuid4())
