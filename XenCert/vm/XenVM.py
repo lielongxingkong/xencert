@@ -185,7 +185,7 @@ class XenVM():
 
     def stop(self):
         destroy_domain(self.name)
-        while not domain_running(self.name):
+        while domain_running(self.name):
             time.sleep(2)
             destroy_domain(self.name)
 
