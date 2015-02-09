@@ -12,12 +12,14 @@
 #
 
 import os, sys, re, time
-import uuid
+import uuid, shutil
 import ConfigParser
 
 sys.path.insert(0, "../drivers")
 sys.path.insert(0, "drivers")
 
+import commands
+from Image import Image
 from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 def get_boot(first=None):
