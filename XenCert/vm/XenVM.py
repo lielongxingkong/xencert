@@ -86,9 +86,21 @@ def destroy_domain(name):
 
 class XenVM():
     """Xen Virtual Machine Class"""
-    def __init__(self, name, conf_dir, disk_num, vif_num, vcpus=None, memory=None, first_boot=None):
+    def __init__(self, name, disk_num=1, vif_num=1, vcpus=None, memory=None, first_boot=None, path=None):
         self.name = name
-        self.conf_path = os.path.join(conf_dir, name)
+        if path == None:
+            for d in DEFAULT_VM_DIRS:
+                if os.path.exists(d):
+                    self.path = d
+                break
+        else:
+            if os.path.exists(path):
+                self.path = path
+            else:
+                raise Exception("Cannot create vm because of non-exists path %s" % path)
+
+        self.root_path = os.path.join(self.path, name)
+        self.conf_path = os.path.join(self.root_path, 'config')
         self.uuid = str(uuid.uuid4())
 
         if vcpus == None:
