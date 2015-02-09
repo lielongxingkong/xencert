@@ -13,6 +13,8 @@
 
 import os, sys, re, time
 import uuid
+import ConfigParser
+
 from StorageHandlerUtil import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 
@@ -108,10 +110,16 @@ class XenVM():
         pass
 
     def load(self):
-        pass
+        cf = ConfigParser.ConfigParser()
+        cf.read(self.conf_path)
 
     def store(self):
-        pass
+        dic = self._to_dict()
+        cf = ConfigParser.ConfigParser()
+        cf.write(open(self.conf_path, "w"))
+
+    def _to_dict(self):
+        return {}
 
     def start(self):
         create_domain(self.conf_path)
