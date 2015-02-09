@@ -33,7 +33,7 @@ class Image(object):
                     break
             raise Exception("Cannot choose a path to save image %s" % self.name)
         else:
-            if os.path.exits(store_dir):
+            if os.path.exists(store_dir):
                 self.store_dir = store_dir
             else:
                 raise Exception("Cannot set path %s to save image %s" % (store_dir, self.name))
