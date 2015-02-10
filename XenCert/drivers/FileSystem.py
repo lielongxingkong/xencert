@@ -43,6 +43,9 @@ class FileSystem(object):
 
         self.attached = self._checkmount()
 
+    def get_mountpoint(self):
+        return self.path
+
     def delete(self):
         self.detach()
 
