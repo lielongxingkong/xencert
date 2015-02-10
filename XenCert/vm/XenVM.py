@@ -13,7 +13,6 @@
 
 import os, sys, re, time
 import uuid, shutil
-import ConfigParser
 
 sys.path.insert(0, "../drivers")
 sys.path.insert(0, "drivers")
