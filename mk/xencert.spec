@@ -1,6 +1,6 @@
 # -*- rpm-spec -*-
 
-Summary: The XenServer Storage Certification Kit
+Summary: The Inspur Xen Storage Certification Kit
 Name:    inspur-xencert
 Version: 0.1
 Release: 0

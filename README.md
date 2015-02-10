@@ -41,7 +41,7 @@
 
 ###2.4 Storage specific options
 
-####2.4.1 Storage type lvmoiscsi
+####2.4.1 Storage type iscsi
 
 + -t target [required]
   + comma separated list of Target names/IP addresses 
@@ -59,7 +59,7 @@
 + -e serverpath [required]
   + exported path
 
-####2.4.3 Storage type lvmohba
+####2.4.3 Storage type hba
 
 + -a adapters [optional]
   + comma separated list of HBAs to test against
@@ -69,7 +69,7 @@
   + storage type ( iscsi, hba, nfs ) 
   
 
->**NOTES:**    If the target IQNs are specified as "*" in the -q option above, ALL the LUNs accessible via the targets mentioned in -t will be accessed and **ERASED**. Please use the wildcard option **with the utmost care**.
+>**NOTES:**    If the target IQNs are specified as "\*" in the -q option above, ALL the LUNs accessible via the targets mentioned in -t will be accessed and **ERASED**. Please use the wildcard option **with the utmost care**.
 
  
 ##3 Running on various storage types 
