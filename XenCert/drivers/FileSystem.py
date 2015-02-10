@@ -75,7 +75,7 @@ class FileSystem(object):
     def detach(self):
         if not self._checkmount():
             return
-        cleanup.abort(self.uuid)
+
         try:
             # Change directory to avoid unmount conflicts
             os.chdir(MOUNT_BASE)
@@ -85,7 +85,6 @@ class FileSystem(object):
 
             # remove the mountpoint
             os.rmdir(self.path)
-            self.path = None
 
             self.attached = False
         except util.CommandException, inst:
