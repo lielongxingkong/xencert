@@ -129,23 +129,28 @@ class FileSystem(object):
 class EXT4(FileSystem):
     def mkfs(self):
         try:
-            util.pread2(["mkfs.ext3", "-F", self.device])
+            cmd = ["mkfs.ext4", "-F", self.device]
+            DebugCmdArray(cmd)
+            util.pread2(cmd)
         except util.CommandException, inst:
             raise Exception('mkfs.ext4 failed')
 
 
 class OCFS2(FileSystem):
     def mkfs(self):
-        try:
-            util.pread2(["mkfs.ext3", "-F", self.device])
-        except util.CommandException, inst:
-            raise Exception('mkfs.ocfs failed')
+        cmd = "yes y | mkfs.ocfs2 -F -T vmstore -J block64 -M local -N 1 " + self.device
+        DebugCmd(cmd)
+        (status, output) = commands.getstatusoutput(cmd)
+        if status != 0:
+            raise Exception('mkfs.ocfs failed: %s' % output)
 
 
 class XFS(FileSystem):
     def mkfs(self):
         try:
-            util.pread2(["mkfs.ext3", "-F", self.device])
+            cmd = ["mkfs.xfs", "-f", self.device]
+            DebugCmdArray(cmd)
+            util.pread2(cmd)
         except util.CommandException, inst:
             raise Exception('mkfs.xfs failed')
 
