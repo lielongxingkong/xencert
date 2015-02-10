@@ -133,12 +133,7 @@ class XenVM():
     def remove(self):
         shutil.rmtree(self.root_path)
 
-    def load(self):
-        cf = ConfigParser.ConfigParser()
-        cf.read(self.conf_path)
-
     def store(self):
-        
         with open(self.conf_path, "w") as f:
             for key,val in self._to_dict().items():
                 line = key + ' = ' + repr(val) + '\n'
