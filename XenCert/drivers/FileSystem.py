@@ -90,9 +90,9 @@ class FileSystem(object):
         except util.CommandException, inst:
             raise Exception('Failed to unmount FS.')
 
-    def create(self, size):
+    def create(self):
         if self._checkmount():
-            raise Exception('Mounted FS.')
+            raise Exception('Fail to create FS, path %s has been mounted.' % self.path)
         self.mkfs()
 
     def mkfs(self):
