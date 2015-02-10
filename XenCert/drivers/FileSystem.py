@@ -119,6 +119,12 @@ class FileSystem(object):
                 return False
         return True
 
+    def _splitstring(self, str):
+        elementlist = []
+        for i in range(0, len(str)):
+            elementlist.append(str[i])
+        return elementlist
+
 
 class EXT4(FileSystem):
     def mkfs(self):
