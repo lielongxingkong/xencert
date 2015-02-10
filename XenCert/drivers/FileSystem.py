@@ -24,7 +24,7 @@ MOUNT_BASE = '/media'
 
 class FileSystem(object):
     """Local file storage repository"""
-    def __init__(device, name=None):
+    def __init__(self, device, name=None, path=None):
         self.device = device
         if name == None:
             self.name = str(uuid.uuid4())
@@ -33,7 +33,14 @@ class FileSystem(object):
 
         if not self._isvalidpathstring(self.device):
             raise Exception('Config device invalid %s' % dev)
-        self.path = os.path.join(MOUNT_BASE, self.name)
+
+        if path == None:
+            self.path = os.path.join(MOUNT_BASE, self.name)
+        else:
+            self.path = path
+        if not self._isvalidpathstring(self.path):
+            raise Exception('Invalid path %s' % self.path)
+
         self.attached = self._checkmount()
 
     def delete(self):
