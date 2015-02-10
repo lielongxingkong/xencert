@@ -126,22 +126,3 @@ def scan_exports(target):
 
     return dom
 
-def scan_srlist(path):
-    dom = xml.dom.minidom.Document()
-    element = dom.createElement("SRlist")
-    dom.appendChild(element)
-    for val in filter(util.match_uuid, util.ioretry( \
-            lambda: util.listdir(path))):
-        fullpath = os.path.join(path, val)
-        if not util.ioretry(lambda: util.isdir(fullpath)):
-            continue
-            
-        entry = dom.createElement('SR')
-        element.appendChild(entry)
-        
-        subentry = dom.createElement("UUID")
-        entry.appendChild(subentry)
-        textnode = dom.createTextNode(val)
-        subentry.appendChild(textnode)
-
-    return dom.toprettyxml()
