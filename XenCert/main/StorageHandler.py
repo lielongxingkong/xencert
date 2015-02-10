@@ -36,6 +36,7 @@ import commands
 import ISCSI
 from lvhdutil import VG_LOCATION,VG_PREFIX
 from lvutil import MDVOLUME_NAME, ensurePathExists, remove, rename
+from FileSystem import MOUNT_BASE, EXT4, XFS, OCFS2
 
 retValIO = 0
 timeTaken = '' 
@@ -1248,3 +1249,147 @@ class StorageHandlerNFS(StorageHandler):
         PrintR("No multipath support for NFS storage.")
         return (False, 0, 1)
         
+class StorageHandlerFS(StorageHandler):
+    def __init__(self, storage_conf):
+        XenCertPrint("Reached StorageHandlerFS constructor")
+        self.device = storage_conf['device']
+        self.mountpoint = storage_conf['mountpoint']
+        if storage_conf['fs'] == 'ext4':
+           self.fs = EXT4(self.device, path=self.mountpoint)
+        elif storage_conf['fs'] == 'xfs':
+           self.fs = XFS(self.device, path=self.mountpoint)
+        elif storage_conf['fs'] == 'ocfs2':
+           self.fs = OCFS2(self.device, path=self.mountpoint)
+        else:
+            raise Exception("Unsupport filesystem %s, ext4, xfs and ocfs2 only" % storage_conf['fs'])
+
+        if os.path.realpath(util.getrootdev()) in self.device:
+            raise Exception("FS test not support device %s, as it is the root device." % self.device)
+        StorageHandler.__init__(self, storage_conf)
+        
+    def __del__(self):
+        XenCertPrint("Reached StorageHandlerFS destructor")
+        StorageHandler.__del__(self)
+        
+    def CreateFS(self):
+        try:
+            self.fs.create()
+        except Exception, e:
+            Print("   - Failed to create FS on device : %s. Exception: %s" % (self.device, str(e)))
+    	    raise e
+
+    def MountFS(self):
+        try:
+            self.fs.attach()
+        except Exception, e:
+            Print("   - Failed to mount device %s to %s : %s. Exception: %s" % (self.device, self.mountpoint, str(e)) )
+            raise e
+
+    def UmountFS(self):
+        self.fs.detach()
+
+    def FSPerformance(self, testfile):
+        return self.FileSystemPerformance(testfile)
+
+    def FSFunctional(self, testfile):
+        return self.FileSystemFunctional(testfile)
+
+    def FunctionalTests(self):
+        return self.FunctionalOrPerformanceTests('Func')
+
+    def DataPerformanceTests(self):
+        return self.FunctionalOrPerformanceTests('Perf')
+
+    def FunctionalOrPerformanceTests(self, type='Func'):
+
+        if type not in ('Perf', 'Func'):
+            PrintR("Unsupport Selection %s, Perf and Func only" % type)
+            raise Exception("Unsupport Selection %s, Perf and Func only" % type)
+
+        retVal = True
+        checkPoints = 0
+        totalCheckPoints = 5
+        testFileCreated = False
+        testDirCreated = False
+        mountCreated = False
+
+        try:
+            # 1. Create FS
+            PrintY("CREATE FS ON DEVICE")
+            Print(">> This test create filesystem on device.")
+
+            self.CreateFS()
+            displayOperationStatus(True)
+            checkPoints += 1
+
+            # 2. Verify FS by mounting as local directory
+            PrintY("VERIFY FS TARGET PARAMETERS")
+            Print(">> This test attempts to mount the export path specified ")
+            Print(">> as a local directory. ")
+            try:
+                self.MountFS()
+                mountCreated = True
+                displayOperationStatus(True)
+                checkPoints += 1
+            except Exception, e:
+                raise Exception("   - Failed to mount device %s on path %s, error: %s" % (self.device, self.mountpoint, str(e)))       
+            
+            # 2. Create directory and execute Filesystem IO tests
+            PrintY("CREATE DIRECTORY AND PERFORM FILESYSTEM IO TESTS.")
+            Print(">> This test creates a directory on the locally mounted path above")
+            Print(">> and performs some filesystem read write operations on the directory.")
+            try:
+                testdir = os.path.join(self.fs.get_mountpoint(), 'XenCertTestDir-%s' % commands.getoutput('uuidgen'))
+                try:
+                    os.mkdir(testdir, 755)
+                except Exception,e:
+                    raise Exception("Exception creating directory: %s" % str(e))
+                testDirCreated = True
+
+                testfile = os.path.join(testdir, 'XenCertFSPerfTestFile-%s' % commands.getoutput('uuidgen'))
+                if type == 'Func':
+                    rc, stdout, stderr = self.FSFunctional(testfile)
+                elif type == 'Perf':
+                    rc, stdout, stderr = self.FSPerformance(testfile)
+
+                testFileCreated = True
+                if rc != 0:
+                    raise Exception(stderr)
+                displayOperationStatus(True)
+                checkPoints += 1
+            except Exception, e:
+                Print("   - Failed to perform filesystem IO tests.")
+                raise e
+            
+            # 3. Report Filesystem target space parameters for verification by user
+            PrintY("REPORT FILESYSTEM TARGET SPACE PARAMETERS FOR VERIFICATION BY THE USER")
+            try:
+                Print("  - %-20s: %s" % ('Total space', util.get_fs_size(testdir)))
+                Print("  - %-20s: %s" % ('Space utilization',util.get_fs_utilisation(testdir)))
+                displayOperationStatus(True)
+                checkPoints += 1
+            except Exception, e:
+                Print("   - Failed to report filesystem space utilization parameters. " )
+                raise e
+        except Exception, e:
+            Print("   - Functional testing failed with error: %s" % str(e))
+            retVal = False
+
+        # Now perform some cleanup here
+        try:
+            if testFileCreated:
+                os.remove(testfile)
+            if testDirCreated:
+                os.rmdir(testdir)
+            if mountCreated:
+                self.UmountFS()
+            checkPoints += 1
+        except Exception, e:
+            Print("   - Failed to cleanup after FS tests, please delete the following manually: %s, %s, %s. Exception: %s" % (testfile, testdir, self.mountpoint, str(e)))
+            
+        return (retVal, checkPoints, totalCheckPoints)
+
+    def MPConfigVerificationTests(self):
+        PrintR("No multipath support for FS storage.")
+        return (False, 0, 1)
+ 
