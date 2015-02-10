@@ -99,49 +99,14 @@ def unmount(mountpoint, rmmountpoint):
 def scan_exports(target):
     util.SMlog("scanning")
     cmd = [SHOWMOUNT_BIN, "--no-headers", "-e", target]
-    dom = xml.dom.minidom.Document()
-    element = dom.createElement("nfs-exports")
-    dom.appendChild(element)
+    exports = []
     for val in util.pread2(cmd).split('\n'):
         if not len(val):
             continue
-        entry = dom.createElement('Export')
-        element.appendChild(entry)
-        
-        subentry = dom.createElement("Target")
-        entry.appendChild(subentry)
-        textnode = dom.createTextNode(target)
-        subentry.appendChild(textnode)
-            
         (path, access) = val.split()
-        subentry = dom.createElement("Path")
-        entry.appendChild(subentry)
-        textnode = dom.createTextNode(path)
-        subentry.appendChild(textnode)
+        point['Target'] = target 
+        point['Path'] = path
+        point['Accesslist'] = access
+        exports.append(point)
+    return exports
 
-        subentry = dom.createElement("Accesslist")
-        entry.appendChild(subentry)
-        textnode = dom.createTextNode(access)
-        subentry.appendChild(textnode)
-
-    return dom
-
-def scan_srlist(path):
-    dom = xml.dom.minidom.Document()
-    element = dom.createElement("SRlist")
-    dom.appendChild(element)
-    for val in filter(util.match_uuid, util.ioretry( \
-            lambda: util.listdir(path))):
-        fullpath = os.path.join(path, val)
-        if not util.ioretry(lambda: util.isdir(fullpath)):
-            continue
-            
-        entry = dom.createElement('SR')
-        element.appendChild(entry)
-        
-        subentry = dom.createElement("UUID")
-        entry.appendChild(subentry)
-        textnode = dom.createTextNode(val)
-        subentry.appendChild(textnode)
-
-    return dom.toprettyxml()
