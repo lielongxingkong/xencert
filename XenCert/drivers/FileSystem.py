@@ -16,8 +16,9 @@
 import util, scsiutil
 
 import os
-import uuid
+import uuid, commands
 import cleanup
+from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 MOUNT_BASE = '/media'
 
