@@ -55,6 +55,7 @@ __vm_args__ = [
     ["name",          "name for virtual machine", " : ", None,        "optional", "-N", ""   ],
     ["rootDisk",      "root virtual disk for virtual machine", " : ", None,        "required", "-R", ""   ],
     ["after",       "action after vm test ", " : ", None,        "optional", "-A", ""   ],
+    ["path",       "path to create vm", " : ", None,        "optional", "-p", ""   ],
     ["storeOn",       "disk to create new data storage", " : ", None,        "optional", "-o", ""   ] ]
 
 __common__ = [    
