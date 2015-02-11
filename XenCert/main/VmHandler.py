@@ -33,6 +33,7 @@ class VmHandler:
         self.name = str(uuid.uuid4()) if storage_conf['name'] == None else storage_conf['name']
         self.storeOn = storage_conf['storeOn']
         self.rootDisk = storage_conf['rootDisk']
+        self.path = storage_conf['path']
         self.fs = None
 
         if storage_conf['after'] == 'r' or storage_conf['after'] == 'remove' or storage_conf['after'] == None: 
@@ -47,6 +48,9 @@ class VmHandler:
         else:
             raise Exception("Unsupport after argument %s, c(clean) p(permanent) r(remove) only" % storage_conf['after'])
 
+        if self.path != None and not os.path.exists(self.path):
+            raise Exception("path %s for VM test does not exist!" % self.path)
+
         if self.storeOn != None:
             if not os.path.exists(self.storeOn):                 
                 raise Exception("Device path %s for VM test does not exist!" % self.storeOn)
@@ -54,10 +58,11 @@ class VmHandler:
             if os.path.realpath(util.getrootdev()) in self.storeOn:
                 raise Exception("VM test not support device %s, as it is the root device." % self.storeOn)
 
-            self.fs = OCFS2(self.storeOn)
+            self.fs = OCFS2(self.storeOn, path=self.path)
             self.path = self.fs.get_mountpoint()
-        else:
-            self.path = MOUNT_BASE
+        
+        if self.path == None:
+            self.path = MOUNT_BASE 
 
         if not os.path.exists(self.rootDisk):                 
             raise Exception("Virtual Disk path %s for VM test does not exist!" % self.rootDisk)
