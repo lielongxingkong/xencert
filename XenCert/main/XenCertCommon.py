@@ -42,7 +42,7 @@ __fs_args__ = [
     ["mountpoint",          "mount point path", " : ", None,        "optional", "-p", ""   ],
     ["fs",       "file system type to create", " : ", None,        "optional", "-F", ""   ] ]
 
-__iscsi__ = [
+__iscsi_args__ = [
     ["target",          "comma separated list of Target names/IP addresses", " : ", None,        "required", "-t", ""      ],
     ["targetIQN",       "comma separated list of target IQNs OR \"*\"", " : ", None,        "required", "-q", ""      ],
     ["SCSIid",        "SCSIid to use for datastore creation",                  " : ", '',          "optional", "-s", ""    ],
@@ -90,7 +90,7 @@ def parse_args(version_string):
                        help=element[1],
                        dest=element[0])
 
-    for element in __iscsi__:
+    for element in __iscsi_args__:
         opt.add_option(element[5], element[6],
                        default=element[3],
                        help=element[1],
@@ -144,7 +144,7 @@ def valid_arguments(options, g_storage_conf):
     elif options.storage_type == "fs":
         subargs = __fs_args__
     elif options.storage_type == "iscsi":
-        subargs = __iscsi__
+        subargs = __iscsi_args__
 
     for element in subargs:
         if not getattr(options, element[0]):
@@ -185,7 +185,7 @@ Common options:\n")
     
 def DisplayiSCSIOptions():
     Print(" Storage type iscsi:\n")
-    for item in __iscsi__:
+    for item in __iscsi_args__:
         printHelpItem(item)
  
 def DisplayNfsOptions():
