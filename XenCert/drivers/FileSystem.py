@@ -59,7 +59,9 @@ class FileSystem(object):
                 raise Exception('Error make mountpoint.')
             
             try:
-                util.pread(["fsck", "-a", self.device])
+                cmd = ["fsck", "-a", self.device]
+                DebugCmdArray(cmd)
+                util.pread(cmd)
             except util.CommandException, inst:
                 if inst.code == 1:
                     util.SMlog("FSCK detected and corrected FS errors. Not fatal.")
