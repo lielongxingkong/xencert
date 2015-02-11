@@ -35,8 +35,10 @@ class FileSystem(object):
             raise Exception('Config device invalid %s' % dev)
 
         if path == None:
+            self.userSetPath = False
             self.path = os.path.join(MOUNT_BASE, self.name)
         else:
+            self.userSetPath = True
             self.path = path
         if not self._isvalidpathstring(self.path):
             raise Exception('Invalid path %s' % self.path)
@@ -85,8 +87,9 @@ class FileSystem(object):
             # unmount the device
             util.pread(["umount", self.path])
 
-            # remove the mountpoint
-            os.rmdir(self.path)
+            # remove the mountpoint if not user set
+            if not self.userSetPath:
+                os.rmdir(self.path)
 
             self.attached = False
         except util.CommandException, inst:
