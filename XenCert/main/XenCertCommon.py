@@ -54,8 +54,8 @@ __iscsi_args__ = [
 __vm_args__ = [
     ["name",          "name for virtual machine", " : ", None,        "optional", "-N", ""   ],
     ["rootDisk",      "root virtual disk for virtual machine", " : ", None,        "required", "-R", ""   ],
+    ["after",       "action after vm test ", " : ", None,        "optional", "-A", ""   ],
     ["storeOn",       "disk to create new data storage", " : ", None,        "optional", "-o", ""   ] ]
-    ["after",       "action after vm test ", " : ", None,        "optional", "-A", ""   ] ]
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
