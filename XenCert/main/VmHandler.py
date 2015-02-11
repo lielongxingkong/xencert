@@ -99,6 +99,7 @@ class VmHandler:
             try:
                 vm.create()
                 vm.start()
+                vm.print_info()
                 vmCreated = True
                 displayOperationStatus(True)
                 checkPoints += 1

@@ -186,3 +186,12 @@ class XenVM():
             time.sleep(2)
             destroy_domain(self.name)
 
+    def print_info(self):
+        PrintR('\tVM info:')
+        PrintR('\t\tname: %s' % self.name)
+        PrintR('\t\tpath: %s' % self.root_path)
+        PrintR('\t\tdomain id: %s' % self.domid)
+        PrintR('\t\tdisk num: %s' % self.disk_num)
+        PrintR('\t\t\tdisks : %s' % ','.join(disk.path for disk in self.disks))
+        PrintR('\t\tvif num: %s' % self.vif_num)
+
