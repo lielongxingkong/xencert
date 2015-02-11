@@ -19,9 +19,10 @@
 
 from optparse import OptionParser
 import StorageHandler
+import VmHandler
 from Logging import Print
 
-storage_type = "storage type (iscsi, hba, nfs, fs)"
+storage_type = "storage type (iscsi, hba, nfs, fs, vm)"
 
 # argument format:
 #  keyword
@@ -48,6 +49,12 @@ __iscsi__ = [
     ["SCSIid",        "SCSIid to use for datastore creation",                  " : ", '',          "optional", "-s", ""    ],
     ["chapuser",        "username for CHAP", " : ", '',        "optional", "-x", ""    ],
     ["chappasswd",      "password for CHAP", " : ", '',        "optional", "-w", ""    ] ]
+
+
+__vm_args__ = [
+    ["name",          "name for virtual machine", " : ", None,        "optional", "-N", ""   ],
+    ["rootDisk",      "root virtual disk for virtual machine", " : ", None,        "required", "-R", ""   ],
+    ["storeOn",       "disk to create new data storage", " : ", None,        "optional", "-o", ""   ] ]
 
 __common__ = [    
     ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
@@ -96,6 +103,12 @@ def parse_args(version_string):
                        help=element[1],
                        dest=element[0])
         
+    for element in __vm_args__:
+        opt.add_option(element[5], element[6],
+                       default=element[3],
+                       help=element[1],
+                       dest=element[0])
+
     for element in __commonparams__:
         opt.add_option(element[5], element[6],
                        default=element[3],
@@ -122,8 +135,8 @@ def store_configuration(g_storage_conf, options):
 
 def valid_arguments(options, g_storage_conf):
     """ validate arguments """
-    if not options.storage_type in ["hba", "nfs", "iscsi", "fs"]:
-        Print("Error: storage type (hba, nfs, fs or iscsi) is required")
+    if not options.storage_type in ["hba", "nfs", "iscsi", "fs", "vm"]:
+        Print("Error: storage type (hba, nfs, fs, iscsi or vm) is required")
         return 0
 
     for element in __commonparams__:
@@ -145,6 +158,8 @@ def valid_arguments(options, g_storage_conf):
         subargs = __fs_args__
     elif options.storage_type == "iscsi":
         subargs = __iscsi__
+    elif options.storage_type == "vm":
+        subargs = __vm_args__
 
     for element in subargs:
         if not getattr(options, element[0]):
@@ -173,6 +188,9 @@ def GetStorageHandler(g_storage_conf):
     
     if g_storage_conf["storage_type"] == "fs":
         return StorageHandler.StorageHandlerFS(g_storage_conf)
+
+    if g_storage_conf["storage_type"] == "vm":
+        return VmHandler.VmHandler(g_storage_conf)
 
     return None
 
@@ -203,6 +221,11 @@ def DisplayFsOptions():
     for item in __fs_args__:
         printHelpItem(item)    
   
+def DisplayVmOptions():
+    Print(" Storage type vm:\n")
+    for item in __vm_args__:
+        printHelpItem(item)    
+
 def DisplayTestSpecificOptions():
     Print("Test specific options:")
     Print("Multipathing test options (-m above):\n")
@@ -218,6 +241,8 @@ def DisplayStorageSpecificUsage(storage_type):
         DisplayHBAOptions()
     elif storage_type == 'fs':
         DisplayFsOptions()
+    elif storage_type == 'vm':
+        DisplayVmOptions()
     elif storage_type == None:
         DisplayiSCSIOptions()
         Print("")
@@ -226,6 +251,8 @@ def DisplayStorageSpecificUsage(storage_type):
         DisplayHBAOptions()        
         Print("")
         DisplayFsOptions()        
+        Print("")
+        DisplayVmOptions()
      
 def DisplayUsage(storage_type = None):
     DisplayCommonOptions();

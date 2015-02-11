@@ -69,6 +69,15 @@ def main():
     if not options.functional and not options.multipath and not options.data:
 	    testAll = True
     
+    if options.storage_type == 'vm':
+        options.functional = options.multipath = options.data = testAll = False
+        Print("Performing multipath configuration verification.")
+        (retValVM, checkPointsVM, totalCheckPointsVM) = handler.FunctionalTests()
+        if checkPointsVM != totalCheckPointsVM:
+            pass_all = False
+        Print("***********************************************************************")
+        timeOfCompletionVM = time.asctime(time.localtime())
+
     if options.multipath or testAll:
 	Print("Performing multipath configuration verification.")
     	(retValMP, checkPointsMP, totalCheckPointsMP) = handler.MPConfigVerificationTests()
@@ -96,6 +105,15 @@ def main():
     PrintB("Result of Inspur InCloud Sphere XenCert certification suite.")
 
     # Now display all the results
+    if options.storage_type == 'vm':
+	Print("***********************************************************************")
+	if retValVM: 
+            PrintG("%-50s: PASS, Pass percentage: %d, Completed: %s" %
+		  ('Virtual machine test results', int((checkPointsVM * 100)/totalCheckPointsVM), timeOfCompletionVM))
+	else:
+            PrintR("%-50s: FAIL, Pass percentage: %d, Completed: %s" %
+		  ('Virtual machine test results', int((checkPointsVM * 100)/totalCheckPointsVM), timeOfCompletionVM))
+ 
     if options.multipath or testAll:
 	Print("***********************************************************************")
 	if retValMP: 
