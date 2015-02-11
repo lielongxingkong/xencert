@@ -92,6 +92,9 @@ class XenVM():
             else:
                 raise Exception("Cannot create vm because of non-exists path %s" % path)
 
+        # Path Structure
+        #     path/root_path/conf_path
+        #     input/name/config
         self.root_path = os.path.join(self.path, name)
         self.conf_path = os.path.join(self.root_path, 'config')
         self.uuid = str(uuid.uuid4())
