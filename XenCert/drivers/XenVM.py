@@ -87,10 +87,7 @@ class XenVM():
                     self.path = d
                 break
         else:
-            if os.path.exists(path):
-                self.path = path
-            else:
-                raise Exception("Cannot create vm because of non-exists path %s" % path)
+            self.path = path
 
         # Path Structure
         #     path/root_path/conf_path
@@ -127,6 +124,9 @@ class XenVM():
         self.vga = "stdvga"
 
     def create(self):
+        if not os.path.exists(self.path):
+            raise Exception("Cannot create vm because of non-exists path %s" % self.path)
+
         os.mkdir(self.root_path)
         self.disks = create_disks(self.disk_num, self.root_path)
         self.vifs = create_vifs(self.vif_num)
