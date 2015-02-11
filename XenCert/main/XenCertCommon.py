@@ -198,7 +198,7 @@ def DisplayHBAOptions():
     for item in __hba_args__:
         printHelpItem(item)    
 
-def DisplayiSLOptions():
+def DisplayFsOptions():
     Print(" Storage type fs:\n")
     for item in __fs_args__:
         printHelpItem(item)    
@@ -217,7 +217,7 @@ def DisplayStorageSpecificUsage(storage_type):
     elif storage_type == 'hba':
         DisplayHBAOptions()
     elif storage_type == 'fs':
-        DisplayiSLOptions()
+        DisplayFsOptions()
     elif storage_type == None:
         DisplayiSCSIOptions()
         Print("")
@@ -225,7 +225,7 @@ def DisplayStorageSpecificUsage(storage_type):
         Print("")
         DisplayHBAOptions()        
         Print("")
-        DisplayiSLOptions()        
+        DisplayFsOptions()        
      
 def DisplayUsage(storage_type = None):
     DisplayCommonOptions();
