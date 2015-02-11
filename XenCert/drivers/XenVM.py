@@ -19,6 +19,7 @@ sys.path.insert(0, "drivers")
 
 import commands
 from Image import Image
+from Vif import Vif 
 from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 DEFAULT_VM_DIRS = ['/mnt',]
@@ -55,7 +56,8 @@ def create_disks(disk_num, path):
 def create_vifs(vif_num):
     vifs = []
     for i in range(vif_num):
-        pass
+        vif = Vif()
+        vifs.append(vif)
     return vifs 
 
 def domain_running(name):
@@ -174,6 +176,17 @@ class XenVM():
             disks.append(disk)
         config['disk'] = disks
 
+        vifs = []
+        for inf in self.vifs:
+            vif = {}
+            vif['bridge'] = inf.bridge
+            vif['mac'] = inf.addr
+            vif['model'] = 'e1000'
+            vif['type'] = 'ioemu'
+            vif = ','.join('%s=%s' % (k,v) for k,v in vif.items())
+            vifs.append(vif)
+        config['vif'] = vifs
+
         return config
 
     def start(self):
@@ -200,4 +213,5 @@ class XenVM():
         PrintR('\t\tdisk num: %s' % self.disk_num)
         PrintR('\t\t\tdisks : %s' % ','.join(disk.path for disk in self.disks))
         PrintR('\t\tvif num: %s' % self.vif_num)
+        PrintR('\t\t\tvifs : %s' % ','.join(vif.addr for vif in self.vifs))
 
