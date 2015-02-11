@@ -39,9 +39,9 @@ __hba_args__ = [
     ["adapters",       "comma separated list of HBAs to test against", " : ", None,        "optional", "-a", ""   ] ]
 
 __fs_args__ = [
-    ["device",          "block device to create file system", " : ", None,        "required", "-D", ""   ],
-    ["mountpoint",          "mount point path", " : ", None,        "optional", "-p", ""   ],
-    ["fs",       "file system type to create", " : ", None,        "optional", "-F", ""   ] ]
+    ["device",          "block device to create file system", " : ", None,        "required", "-d", ""   ],
+    ["mountpoint",          "mount point path", " : ", None,        "optional", "-m", ""   ],
+    ["fs",       "file system type to create", " : ", None,        "optional", "-f", ""   ] ]
 
 __iscsi_args__ = [
     ["target",          "comma separated list of Target names/IP addresses", " : ", None,        "required", "-t", ""      ],
@@ -58,9 +58,9 @@ __vm_args__ = [
     ["storeOn",       "disk to create new data storage", " : ", None,        "optional", "-o", ""   ] ]
 
 __common__ = [    
-    ["functional", "perform functional tests",                          " : ", None, "optional", "-f", ""],
-    ["multipath", "perform multipath configuration verification tests", " : ", None, "optional", "-m", ""],
-    ["data", "perform data verification tests",                         " : ", None, "optional", "-d", ""],
+    ["functional", "perform functional tests",                          " : ", None, "optional", "-F", ""],
+    ["multipath", "perform multipath configuration verification tests", " : ", None, "optional", "-M", ""],
+    ["data", "perform data verification tests",                         " : ", None, "optional", "-D", ""],
     ["help",    "show this help message and exit",                                  " : ", None,        "optional", "-h", "" ]]
 
 __commonparams__ = [
