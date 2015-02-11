@@ -14,7 +14,7 @@
 #
 
 import util, commands
-import os, uuid
+import os, uuid, shutil
 
 DEFAULT_IMG_DIRS=['/mnt', ] 
 
@@ -60,4 +60,9 @@ class Image(object):
         except ValueError, e:
             raise Exception("Cannot get sparse size of image " % str(e))
         
+    def import_from(self, from_path):
+        try:
+            shutil.copyfile(from_path, self.path)
+        except Exception, e:
+            raise Exception("Cannot import %s, Exception: %s" % (from_path,str(e)))
 

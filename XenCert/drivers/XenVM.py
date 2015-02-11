@@ -131,6 +131,12 @@ class XenVM():
         self.disks = create_disks(self.disk_num, self.root_path)
         self.vifs = create_vifs(self.vif_num)
         self.store()
+
+    def import_rootdev(self, src_path):
+        if len(self.disks) > 0:
+            self.disks[0].import_from(src_path)
+        else:
+            raise Exception("Cannot import disk %s because of no disk on vm" % src_path)
             
     def remove(self):
         shutil.rmtree(self.root_path)

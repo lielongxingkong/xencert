@@ -98,6 +98,7 @@ class VmHandler:
             Print(">> and performs vm tests.")
             try:
                 vm.create()
+                vm.import_rootdev(self.rootDisk)
                 vm.start()
                 vm.print_info()
                 vmCreated = True
