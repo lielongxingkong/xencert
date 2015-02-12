@@ -41,7 +41,7 @@ __hba_args__ = [
 __fs_args__ = [
     ["device",          "block device to create file system", " : ", None,        "required", "-d", ""   ],
     ["mountpoint",          "mount point path", " : ", None,        "optional", "-m", ""   ],
-    ["fs",       "file system type to create", " : ", None,        "optional", "-f", ""   ] ]
+    ["fs",       "file system type to create", " : ", 'ocfs2',        "optional", "-f", ""   ] ]
 
 __iscsi_args__ = [
     ["target",          "comma separated list of Target names/IP addresses", " : ", None,        "required", "-t", ""      ],
