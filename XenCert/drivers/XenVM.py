@@ -117,6 +117,8 @@ class XenVM():
         self.store()
 
     def import_rootdev(self, src_path):
+        if self.domain_running():
+            raise Exception("Cannot import disk %s because of vm is running" % src_path)
         if len(self.disks) > 0:
             self.disks[0].import_from(src_path)
         else:
