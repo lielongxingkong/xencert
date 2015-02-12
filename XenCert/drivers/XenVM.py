@@ -23,6 +23,7 @@ from Vif import Vif
 from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 
 DEFAULT_VM_DIRS = ['/mnt',]
+DEFAULT_BR_NAME = 'xencert'
 
 def get_boot(first=None):
     order = ''

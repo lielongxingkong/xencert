@@ -24,9 +24,8 @@ from Logging import PrintOnSameLine
 from Logging import XenCertPrint
 from Logging import displayOperationStatus
 from FileSystem import MOUNT_BASE, EXT4, XFS, OCFS2
-from XenVM import XenVM
+from XenVM import XenVM, DEFAULT_BR_NAME
 
-DEFAULT_BR_NAME = 'xencert'
 DEFAULT_PORT_NAME = 'eth1'
 
 class VmHandler:
