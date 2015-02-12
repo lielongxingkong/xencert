@@ -46,21 +46,6 @@ def get_boot(first=None):
     order += ''.join(default)
     return order
 
-def create_disks(disk_num, path):
-    disks = []
-    for i in range(disk_num):
-        img = Image(1000, path, 'xvd' + chr(ord('a') + i))
-        img.create()
-        disks.append(img) 
-    return disks
-
-def create_vifs(vif_num):
-    vifs = []
-    for i in range(vif_num):
-        vif = Vif()
-        vifs.append(vif)
-    return vifs 
-
 def domain_running(name):
     if domain_id(name) != None:
         return True
@@ -133,8 +118,8 @@ class XenVM():
             raise Exception("Cannot create vm because of non-exists path %s" % self.path)
 
         os.mkdir(self.root_path)
-        self.disks = create_disks(self.disk_num, self.root_path)
-        self.vifs = create_vifs(self.vif_num)
+        self.disks = self.create_disks()
+        self.vifs = self.create_vifs()
         self.store()
 
     def import_rootdev(self, src_path):
@@ -218,3 +203,18 @@ class XenVM():
         PrintR('\t\tvif num: %s' % self.vif_num)
         PrintR('\t\t\tvifs : %s' % ','.join(vif.addr for vif in self.vifs))
 
+    def create_disks(self):
+        disks = []
+        for i in range(self.disk_num):
+            img = Image(1000, self.root_path, 'xvd' + chr(ord('a') + i))
+            img.create()
+            disks.append(img) 
+        return disks
+    
+    def create_vifs(self):
+        vifs = []
+        for i in range(self.vif_num):
+            vif = Vif(self.bridge)
+            vifs.append(vif)
+        return vifs 
+    
