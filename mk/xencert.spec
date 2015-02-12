@@ -2,7 +2,7 @@
 
 Summary: The Inspur Xen Storage Certification Kit
 Name:    inspur-xencert
-Version: 0.1
+Version: 0.2
 Release: 0
 Group:   System/Hypervisor
 License: LGPL
