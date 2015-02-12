@@ -351,6 +351,9 @@ def GetLunInformation(id):
         list = []
         for device in deviceInfo.split('\n'):
             info = device.split()
+            #skip incomplete infomation
+            if len(info) < 7 or '-' in info:
+                continue
             busid = info[0][1:-1].split(':')
             if busid[0] != id:
                 continue
@@ -634,6 +637,9 @@ def get_lun_scsiid_devicename_mapping(targetIQN, portal):
         deviceInfo = commands.getoutput('lsscsi -it')
         for device in deviceInfo.split('\n'):
             info = device.split()
+            #skip incomplete infomation
+            if len(info) < 5 or '-' in info:
+                continue
             busId = info[0]
             transport = info[2]
             realPath = info[3]
