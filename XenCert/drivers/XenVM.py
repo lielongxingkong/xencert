@@ -199,9 +199,9 @@ class XenVM():
         PrintR('\t\tpath: %s' % self.root_path)
         PrintR('\t\tdomain id: %s' % self.domid)
         PrintR('\t\tdisk num: %s' % self.disk_num)
-        PrintR('\t\t\tdisks : %s' % ','.join(disk.path for disk in self.disks))
+        PrintR('\t\t\tdisks : %s' % ','.join("%s size %s" % (disk.path, disk.size) for disk in self.disks))
         PrintR('\t\tvif num: %s' % self.vif_num)
-        PrintR('\t\t\tvifs : %s' % ','.join(vif.addr for vif in self.vifs))
+        PrintR('\t\t\tvifs : %s' % ','.join("%s on %s" % (vif.addr, vif.bridge) for vif in self.vifs))
 
     def create_disks(self):
         disks = []
