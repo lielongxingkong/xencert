@@ -17,7 +17,7 @@
 
 """Virtual machine handler classes"""
 import sys, os
-import uuid
+import uuid, commands
 import util
 from Logging import Print, PrintR, PrintY, PrintB, PrintG, DebugCmd, DebugCmdArray
 from Logging import PrintOnSameLine
@@ -25,6 +25,9 @@ from Logging import XenCertPrint
 from Logging import displayOperationStatus
 from FileSystem import MOUNT_BASE, EXT4, XFS, OCFS2
 from XenVM import XenVM
+
+DEFAULT_BR_NAME = 'xencert'
+DEFAULT_PORT_NAME = 'eth1'
 
 class VmHandler:
     def __init__(self, storage_conf):
@@ -70,10 +73,33 @@ class VmHandler:
         self.storage_conf = storage_conf
         self.sm_config = {}
 
+    def InitNetwork(self):
+        #config bridege
+        result = commands.getoutput("ovs-vsctl list-br")
+        if not DEFAULT_BR_NAME in result.split('\n'):
+            (rc, result) = commands.getstatusoutput("ovs-vsctl add-br %s" % DEFAULT_BR_NAME)
+            if rc != 0: 
+                raise Exception("add-br error when init network, do it manually. Message : %s " % result)
+        #config port 
+        (rc, result) = commands.getstatusoutput("ovs-vsctl port-to-br %s" % DEFAULT_PORT_NAME)
+        if rc == 0:
+            if result != DEFAULT_BR_NAME:
+                #port in use by another bridge, delete it
+                (rc, result) = commands.getstatusoutput("ovs-vsctl del-port %s" % DEFAULT_PORT_NAME)
+                if rc != 0: 
+                    raise Exception("del-port error when init network, do it manually. Message : %s " % result)
+                (rc, result) = commands.getstatusoutput("ovs-vsctl add-port %s %s" % (DEFAULT_BR_NAME, DEFAULT_PORT_NAME))
+                if rc != 0: 
+                    raise Exception("add-port error when init network, do it manually. Message : %s " % result)
+        else:
+            (rc, result) = commands.getstatusoutput("ovs-vsctl add-port %s %s" % (DEFAULT_BR_NAME, DEFAULT_PORT_NAME))
+            if rc != 0: 
+                raise Exception("add-port error when init network, do it manually. Message : %s " % result)
+        
     def FunctionalTests(self):
         retVal = True
         checkPoints = 0
-        totalCheckPoints = 2
+        totalCheckPoints = 3
         mounted= False
         vmCreated = False
 
@@ -97,7 +123,20 @@ class VmHandler:
                 displayOperationStatus(True)
                 checkPoints += 1
 
-            # 2. Create directory and execute VM tests
+            # 2. Create FS if needed
+            PrintY("INIT NETWORK")
+            Print(">> This test init vm network on device.")
+
+            try: 
+                self.InitNetwork()
+            except Exception, e:
+                Print("   - Failed to init network. Exception: %s" % str(e))
+                raise e
+
+            displayOperationStatus(True)
+            checkPoints += 1
+
+            # 3. Create directory and execute VM tests
             PrintY("CREATE DIRECTORY AND PERFORM VM TESTS.")
             Print(">> This test creates a directory to store virtual machine")
             Print(">> and performs vm tests.")
