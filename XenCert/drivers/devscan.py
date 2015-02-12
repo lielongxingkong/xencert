@@ -39,6 +39,7 @@ MODULE_INFO = {
     'mptsas': 'LSI Logic Fusion MPT SAS Adapter Driver',
     'mpt2sas': 'LSI Logic Fusion MPT 6GB SAS Adapter Driver',
     'megaraid_sas': 'MegaRAID driver for SAS based RAID controllers',
+    'aacraid': 'Adaptec RAID controller driver',
     'palo' : 'Cisco Palo FCoE Adapter driver',
     'ethdrv' : 'Coraid ATA over Ethernet driver',
     'xsvhba': 'Xsigo Systems Virtual HBA Driver',
@@ -98,7 +99,8 @@ def adapters(filterstr="any"):
                 continue
         adt[a] = proc
         id = a.replace("host","")
-        scsiutil.rescan([id])
+        #FIXME a proper implement of rescan
+        #scsiutil.rescan([id])
         emulex = False
         paths = []
         if proc == "lpfc":

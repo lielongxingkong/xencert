@@ -126,8 +126,12 @@ def cacheSCSIidentifiers():
     SCSI = {}
     deviceInfo = commands.getoutput('lsscsi')
     for node in deviceInfo.split('\n'):
-        busId = node.split()[0][1:-1]
-        dev = node.split()[-1]
+        info = node.split()
+        #skip incomplete infomation
+        if len(info) < 6 or '-' in info:
+           continue
+        busId = info[0][1:-1]
+        dev = info[-1]
         HBTL = busId.split(":")
         line = "NONE %s %s %s %s 0 %s" % \
                (HBTL[0],HBTL[1],HBTL[2],HBTL[3],dev)
@@ -323,6 +327,9 @@ def _genReverseSCSIidmap(SCSIid):
     devices = []
     for info in deviceInfo.split('\n'):
         info = info.split()
+        #skip incomplete infomation
+        if len(info) < 7 or '-' in info:
+            continue
         #fix scsiid lsscsi -i cannot get
         if info[-1].startswith("SATA"):
             info[-1] = commands.getoutput('scsi_id -g %s' % info[-2])
