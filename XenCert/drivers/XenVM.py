@@ -82,7 +82,7 @@ def destroy_domain(name):
 
 class XenVM():
     """Xen Virtual Machine Class"""
-    def __init__(self, name, disk_num=1, vif_num=1, vcpus=None, memory=None, first_boot=None, path=None):
+    def __init__(self, name, disk_num=1, vif_num=1, vcpus=None, memory=None, first_boot=None, path=None, bridge=None):
         self.name = name
         if path == None:
             for d in DEFAULT_VM_DIRS:
@@ -91,6 +91,8 @@ class XenVM():
                 break
         else:
             self.path = path
+
+        self.bridge = bridge if bridge != None else DEFAULT_BR_NAME
 
         # Path Structure
         #     path/root_path/conf_path
