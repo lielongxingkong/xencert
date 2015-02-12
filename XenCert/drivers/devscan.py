@@ -99,7 +99,8 @@ def adapters(filterstr="any"):
                 continue
         adt[a] = proc
         id = a.replace("host","")
-        scsiutil.rescan([id])
+        #FIXME a proper implement of rescan
+        #scsiutil.rescan([id])
         emulex = False
         paths = []
         if proc == "lpfc":
