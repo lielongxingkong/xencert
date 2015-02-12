@@ -46,12 +46,6 @@ def get_boot(first=None):
     order += ''.join(default)
     return order
 
-def domain_running(name):
-    if domain_id(name) != None:
-        return True
-    else:
-        return False
-
 def domain_id(name):
     output = commands.getoutput('xl domid %s' % name)
     try:
@@ -189,7 +183,7 @@ class XenVM():
 
     def stop(self):
         destroy_domain(self.name)
-        while domain_running(self.name):
+        while self.domain_running(self.name):
             time.sleep(2)
             destroy_domain(self.name)
 
@@ -217,4 +211,10 @@ class XenVM():
             vif = Vif(self.bridge)
             vifs.append(vif)
         return vifs 
-    
+
+    def domain_running(self):
+        if domain_id(self.name) != None:
+            return True
+        else:
+            return False
+
