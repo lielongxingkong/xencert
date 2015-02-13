@@ -30,8 +30,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 #TODO python version compatible
+/usr/lib/python2.6/site-packages/XenCert
 /usr/lib/python2.6/site-packages/XenCert/*
-/usr/lib/python2.6/site-packages/inspur_xencert-0.1-py2.6.egg-info/*
+/usr/lib/python2.6/site-packages/inspur_xencert-%{version}-py2.6.egg-info
+/usr/lib/python2.6/site-packages/inspur_xencert-%{version}-py2.6.egg-info/*
+/opt/inspur/XenCert
 /opt/inspur/XenCert/*
 /usr/bin/inspur-xencert
 
